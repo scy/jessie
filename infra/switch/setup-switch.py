@@ -88,6 +88,10 @@ t.sne('contact-info -')
 t.sne('system-time ntp UTC+01:00 {0} {0} 1'.format(NTP_SERVER))
 t.sne('system-time dst predefined Europe')
 
+# Save settings!
+t.sne('exit', PRIV_PROMPT)
+t.sne('copy running-config startup-config')
+
 # While developing, change to interactive mode.
 t.logfile_read = None # Seems to have issues with Python 3.
 t.interact()

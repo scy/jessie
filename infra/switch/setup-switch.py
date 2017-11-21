@@ -1,3 +1,6 @@
+# To configure the system where you run this for the required IP addresses, use something like this:
+#   sudo ip a a 192.168.0.123/24 dev eth0; sudo ip a a 10.10.1.123/24 dev eth0
+
 import argparse, pexpect, subprocess, sys
 
 # There's a server that does NTP, routing, DNS etc.

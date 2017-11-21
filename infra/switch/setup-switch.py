@@ -1,4 +1,4 @@
-import pexpect, subprocess, sys
+import argparse, pexpect, subprocess, sys
 
 # There's a server that does NTP, routing, DNS etc.
 SERVER_IP = '10.10.1.254'
@@ -8,8 +8,8 @@ DEF_GATEWAY = SERVER_IP
 HOSTNAME = 'tabr' # How the switch should be called.
 
 # Login credentials.
-USER = 'admin'
-PASS = USER
+DEFAULT_USER = 'admin'
+DEFAULT_PASS = DEFAULT_USER
 # The default IP of the switch.
 SWITCH_INITIAL_IP = '192.168.0.1'
 # The IP it should have when we're done configuring it.
@@ -51,12 +51,19 @@ def connect_and_config(ip, user, pw):
     t.sne('configure', GLOB_PROMPT)
     return t
 
+parser = argparse.ArgumentParser()
+parser.add_argument('-u', '--admin-user', dest='user', required=True)
+parser.add_argument('-p', '--admin-password', dest='pw', required=True)
+args = parser.parse_args()
+
 # Connect to the initial IP.
-t = connect_and_config(SWITCH_INITIAL_IP, USER, PASS)
+t = connect_and_config(SWITCH_INITIAL_IP, DEFAULT_USER, DEFAULT_PASS)
 
 if t is None:
     print('Could not connect to the initial IP. This is not necessarily an error; it might already have the correct IP. Trying that.')
 else:
+    # Create the correct admin user.
+    t.sne('user name {0} password {1}'.format(args.user, args.pw)) # passing "type admin secret cipher" resulted in "too many parameters"
     # Set management VLAN and IP address of the switch.
     t.sne('ip management-vlan 1')
     t.sne('interface vlan 1', MGMT_VLAN_PROMPT)
@@ -65,8 +72,11 @@ else:
     t.close()
     t.wait()
 
-# Connect to the correct IP.
-t = connect_and_config(SWITCH_IP, USER, PASS)
+# Connect to the correct IP using the correct user and password.
+t = connect_and_config(SWITCH_IP, args.user, args.pw)
+
+# Delete the default admin user.
+t.sne('no user name {0}'.format(DEFAULT_USER))
 
 # Set basic information.
 t.sne('hostname tabr')

@@ -39,7 +39,10 @@ def connect_and_config(ip, user, pw):
     t.logfile_read = sys.stdout # Echo what we receive.
     t.linesep = '\r\n' # Sending linefeeds only is not supported by the switch.
     # Login.
-    match = t.expect([pexpect.EOF, 'User:'])
+    try:
+        match = t.expect([pexpect.EOF, 'User:'], timeout=3)
+    except pexpect.exceptions.TIMEOUT:
+        return None
     if match == 0:
         return None
     t.sne(user, 'Password:')

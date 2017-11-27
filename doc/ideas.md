@@ -24,3 +24,13 @@ The van will have a rear view back-up camera, a dashcam and a third camera point
 ## Relays
 
 I’m building a box containing 24 12V/10A relays to control lights, pumps etc.
+
+It will be managed by an Arduino Mega board and communicate with the on-board computer via USB serial. The RasPi itself does not have enough I/O ports (there are also switches, not only the relays), and I want this central part to be autonomous.
+
+You can find the software controlling it at [`src/homn`](../src/homn).
+
+### Useful Links
+
+* [Arduino Mega Specs](https://www.arduino.cc/en/Main/ArduinoBoardMega)
+* [AVR libc UART tutorial](https://appelsiini.net/2011/simple-usart-with-avr-libc/)
+

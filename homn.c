@@ -24,6 +24,10 @@
 	#error Unknown MCU type, please define LED port.
 #endif
 
+// After how many ticks (here: ms) of having the same value should we consider an input stable/debounced? May not be
+// larger than 255, since it has to fit into uint8_t.
+#define DEBOUNCE_AT 50
+
 #define ARRAY_SIZE(X) (sizeof(X) / sizeof(*(X)))
 
 
@@ -38,6 +42,16 @@ struct timer {
 };
 
 bool timer_int_occured = false;
+
+
+
+// Since how many ticks does the input pin return the same state? When this reaches DEBOUNCE_AT, the state is considered
+// stable. [0] is pin 0 of a port, [1] is pin 1 and so on.
+uint8_t debounce_counter[8];
+// Bitmask of pins that are currently switching from one state to the other. 1 means debouncing is active.
+uint8_t debounce_active;
+// Debounced (i.e. stable) values of the input pins. Please don't write to this unless you're debounce().
+uint8_t debounced;
 
 
 
@@ -108,11 +122,43 @@ void init_inputs() {
 	SWITCH_A_PORT |=  SWITCH_A_MASK; // Enable pull-ups for input pins.
 }
 
-// This doesn't do debouncing yet, but directly couples input switches to output relays as a proof of concept.
 void debounce(struct timer *t) {
+	// Make sure the values don't change while we're looping over them.
+	uint8_t inputs = SWITCH_A_IN;
+	// Create a bitmask of all pins where the measured value is not equal to the one we consider stable.
+	uint8_t changed = debounced ^ inputs;
+	// Number of the pin. Required for indexing in debounce_counter[].
+	uint8_t pin = 0;
+	// Bitmask that only selects the current pin, i.e. 1 << pin. Will be set in the for loop below.
+	uint8_t mask;
+
 	t->ms = 0; // Call me again at the next tick.
-	// Set output port to input switch state. Fancy masking to only set allowed pins.
-	RELAY_A_PORT = ((SWITCH_A_IN & SWITCH_A_MASK) & RELAY_A_MASK) | (RELAY_A_PORT & ~RELAY_A_MASK);
+	for (pin = 1; pin < 8; pin++) {
+		mask = 1 << pin;
+		if ((SWITCH_A_MASK & mask) == 0) continue; // Skip pins that are no inputs.
+		if (changed & mask) { // The pin seems to change.
+			if (debounce_active & mask) { // This pin is already debouncing, increase the counter.
+				if (debounce_counter[pin] >= DEBOUNCE_AT) { // This pin is stable enough.
+					// Set its value.
+					debounced = (debounced & ~mask) | (inputs & mask);
+					// Stop debouncing it.
+					debounce_active &= ~mask;
+				} else { // Not stable enough, keep counting.
+					debounce_counter[pin]++;
+				}
+			} else { // This pin is not debouncing yet, start the process.
+				debounce_active |= mask;
+				debounce_counter[pin] = 1;
+			}
+		} else { // The measured state equals the debounced one.
+			if (debounce_active & mask) { // This pin is currently debouncing, but returned to its original state.
+				// Stop debouncing it.
+				debounce_active &= ~mask;
+			}
+		}
+	}
+	// Set output port to input switch state for testing purposes. Fancy masking to only set allowed pins.
+	RELAY_A_PORT = ((debounced & SWITCH_A_MASK) & RELAY_A_MASK) | (RELAY_A_PORT & ~RELAY_A_MASK);
 }
 
 

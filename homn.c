@@ -35,16 +35,17 @@
 
 // Simple mappings of switches to relays.
 #define UNMAPPED            0
-#define PUSH_BTN            0x40 |
-// TGGL_BTNs are not implemented yet.
-#define TGGL_BTN            0x80 |
-#define SPECIAL             0xc0 |
+#define PUSH_BTN            0x40
+#define TGGL_BTN            0x80
+// "Special" buttons are not implemented yet.
+#define SPECIAL             0xc0
 #define IS_MAPPED(map)      ((map & 0xc0) != 0)
+#define MAPPED_TYPE(map)    (map & 0xc0)
 #define MAPPED_PORT(map)    ((map >> 3) & 0x07)
 #define MAPPED_PIN(map)     (map & 0x07)
 #define PORT_PIN(port, pin) (((port & 0x07) << 3) | (pin & 0x07))
 const uint8_t INOUTMAP[1][8] PROGMEM = {
-	{ PUSH_BTN PORT_PIN(0,4), TGGL_BTN PORT_PIN(0,5), PUSH_BTN PORT_PIN(0,6), TGGL_BTN PORT_PIN(0,7), UNMAPPED, UNMAPPED, UNMAPPED, UNMAPPED }
+	{ PUSH_BTN | PORT_PIN(0,4),   TGGL_BTN | PORT_PIN(0,7),   PUSH_BTN | PORT_PIN(0,6),   TGGL_BTN | PORT_PIN(0,7),   UNMAPPED,   UNMAPPED,   UNMAPPED,   UNMAPPED }
 };
 
 
@@ -135,9 +136,21 @@ void led_loop(struct timer *t) {
 
 
 void handle_button(const uint8_t in_port, const uint8_t in_pin, const bool high) {
+	// Get the mapping definition for this button.
 	const uint8_t mapping = pgm_read_byte(&(INOUTMAP[in_port][in_pin]));
+	// Create a mask for only the output pin that this button controls. Make sure to not write to a disallowed pin.
 	uint8_t outpinmask = (1 << MAPPED_PIN(mapping)) & RELAY_A_MASK;
-	RELAY_A_PORT = (((high ? 0 : 1) << MAPPED_PIN(mapping)) & outpinmask) | (RELAY_A_PORT & ~outpinmask);
+
+	switch (MAPPED_TYPE(mapping)) {
+		case PUSH_BTN: // While pushed, turn on. Turn off when let go.
+			RELAY_A_PORT = (((high ? 0 : 1) << MAPPED_PIN(mapping)) & outpinmask) | (RELAY_A_PORT & ~outpinmask);
+			break;
+		case TGGL_BTN: // When pushed, toggle the state of the output pin. Do nothing when let go.
+			if (!high) {
+				RELAY_A_PORT ^= outpinmask;
+			}
+			break;
+	}
 }
 
 

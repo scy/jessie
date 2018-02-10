@@ -13,6 +13,13 @@
 	#define ONBOARD_LED 0b00100000
 	#define RELAYTEST_PORT PORTD
 	#define RELAYTEST_DDR DDRD
+	#define SWITCH_A_PORT PORTC
+	#define SWITCH_A_DDR  DDRC
+	#define SWITCH_A_MASK 0b00111111
+	#define SWITCH_A_IN   PINC
+	#define RELAY_A_PORT  PORTD
+	#define RELAY_A_DDR   DDRD
+	#define RELAY_A_MASK  0b11110000
 #else
 	#error Unknown MCU type, please define LED port.
 #endif
@@ -96,7 +103,16 @@ void led_loop(struct timer *t) {
 
 
 
+void init_inputs() {
+	SWITCH_A_DDR  &= ~SWITCH_A_MASK; // Set DDR for allowed pins.
+	SWITCH_A_PORT |=  SWITCH_A_MASK; // Enable pull-ups for input pins.
+}
+
+// This doesn't do debouncing yet, but directly couples input switches to output relays as a proof of concept.
 void debounce(struct timer *t) {
+	t->ms = 0; // Call me again at the next tick.
+	// Set output port to input switch state. Fancy masking to only set allowed pins.
+	RELAY_A_PORT = ((SWITCH_A_IN & SWITCH_A_MASK) & RELAY_A_MASK) | (RELAY_A_PORT & ~RELAY_A_MASK);
 }
 
 
@@ -105,6 +121,9 @@ void init_outputs() {
 	#ifdef DO_RELAYTEST
 		RELAYTEST_DDR |= 0xf0;
 		RELAYTEST_PORT = 0x10 | (RELAYTEST_PORT & 0x0f);
+	#else
+		RELAY_A_DDR  |=  RELAY_A_MASK; // Set DDR for allowed pins.
+		RELAY_A_PORT &= ~RELAY_A_MASK; // Set all outputs to off, keeping other pins untouched.
 	#endif
 }
 
@@ -157,6 +176,7 @@ void handle_timers() {
 
 int main() {
 	init_led();
+	init_inputs();
 	init_outputs();
 	init_timer();
 	sei();

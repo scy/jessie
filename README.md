@@ -8,15 +8,25 @@ I'm in a bit of a hurry. Documentation will improve.
 
 * done
   * interrupt-driven main loop that blinks the on-board LED in a heartbeat animation (proud of the keyframe array based implementation)
-* mostly done
   * handling of button/switch input and relay output
 * to do
   * UART handling and commands
   * UART heartbeat and host heartbeat checking
-  
-## Port/Pin Mapping
 
-**Note: It's not implemented like this yet, but it will be.**
+## Bugs
+
+* It might behave unexpectedly if you configure it to have no input or no output port.
+  
+## How to Flash
+
+Use `make clean flash` to flash it to the Duemilanove. 
+Use `make MCU=atmega1280 clean flash` to flash it to the Mega. 
+If you want to flash the output test routine instead of the normal button behavior, use `make FLAGS=-DDO_OUTPUTTEST clean flash` (combined with `MCU=atmega1280` for the Mega).
+
+Tested on Debian Stretch. 
+You can use `make install-deps` to install avr-libc and avrdude.
+
+## Port/Pin Mapping
 
 This code is designed to run on two devices: 
 An Arduino Duemilanove (`MCU=atmega168`) that I use for testing and an older Arduino Mega (`MCU=atmega1280`) that's built into the van (read: the production system).
@@ -61,8 +71,58 @@ I've tried to reflect this in the table below.
 That's 18 inputs and 24 outputs, with 8 pins reserved for analog input (e.g. temperature or water tank). 
 I haven't used PB7 (digital 13), since it doubles as the LED.
 
-## How to Flash
+#### Ribbon Cable
 
-Use `make flash`. 
-Tested on Debian Stretch. 
-You can use `make install-deps` to install avr-libc and avrdude.
+I'm using a 40-wire rainbow ribbon cable by Joy-IT (RB-CB2-030) to connect the 2x18-pin female port of the Mega to six 4-relay boards and some inputs. 
+The great thing with this cable is that on one end it ends in 40 single Dupont jacks that can easily be removed from their plastic housing and grouped together as you wish. 
+However, since the IDE-style connector it has at the other end is female as well, it doesn't couple nicely with the Mega. 
+(It's certainly made for a Raspberry Pi's GPIO pins.)
+
+To work around that, I've crimped a cutting 40-pin male IDE connector to the end of the cable directly adjacent to the female one. 
+When you remove some of its plastic housing, it fits nicely on the Mega, even though two pins on either side stay unconnected.
+
+These are the pins of the Mega's port and how they map to the cable and the peripherals connected to it. 
+It's ordered by the wires on the cable (the _color_ column).
+
+| Port | Label | Color  | Relay | Connected To         |
+| ---- | ----- | ------ | ----- | -------------------- |
+|      |       | black  |       |                      |
+|      |       | white  |       |                      |
+|      | 5V    | gray   |       |                      |
+|      | 5V    | purple |       |                      |
+| PA1  | 23    | blue   | 1-2   | drinking water pump  |
+| PA0  | 22    | green  | 1-1   | main water pump      |
+| PA3  | 25    | yellow | 1-4   |                      |
+| PA2  | 24    | orange | 1-3   |                      |
+| PA5  | 27    | red    | 2-2   |                      |
+| PA4  | 26    | brown  | 2-1   |                      |
+| PA7  | 29    | black  | 2-4   |                      |
+| PA6  | 28    | white  | 2-3   |                      |
+| PC6  | 31    | gray   | 4-3   |                      |
+| PC7  | 30    | purple | 4-4   |                      |
+| PC4  | 33    | blue   | 4-1   |                      |
+| PC5  | 32    | green  | 4-2   |                      |
+| PC2  | 35    | yellow | 3-3   |                      |
+| PC3  | 34    | orange | 3-4   |                      |
+| PC0  | 37    | red    | 3-1   |                      |
+| PC1  | 36    | brown  | 3-2   |                      |
+| PG2  | 39    | black  |       | sink (foot switch)   |
+| PD7  | 38    | white  |       |                      |
+| PG0  | 41    | gray   |       | sink (faucet)        |
+| PG1  | 40    | purple |       | shower               |
+| PL6  | 43    | blue   | 6-3   |                      |
+| PL7  | 42    | green  | 6-4   |                      |
+| PL4  | 45    | yellow | 6-1   |                      |
+| PL5  | 44    | orange | 6-2   |                      |
+| PL2  | 47    | red    | 5-3   |                      |
+| PL3  | 46    | brown  | 5-4   |                      |
+| PL0  | 49    | black  | 5-1   |                      |
+| PL1  | 48    | white  | 5-2   |                      |
+| PB2  | 51    | gray   |       | free input           |
+| PB3  | 50    | purple |       | free input           |
+| PB0  | 53    | blue   |       | free input           |
+| PB1  | 52    | green  |       | free input           |
+|      | GND   | yellow |       |                      |
+|      | GND   | orange |       |                      |
+|      |       | red    |       |                      |
+|      |       | brown  |       |                      |

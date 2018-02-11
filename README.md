@@ -84,45 +84,45 @@ When you remove some of its plastic housing, it fits nicely on the Mega, even th
 These are the pins of the Mega's port and how they map to the cable and the peripherals connected to it. 
 It's ordered by the wires on the cable (the _color_ column).
 
-| Port | Label | Color  | Relay | Connected To         |
-| ---- | ----- | ------ | ----- | -------------------- |
-|      |       | black  |       |                      |
-|      |       | white  |       |                      |
-|      | 5V    | gray   |       |                      |
-|      | 5V    | purple |       |                      |
-| PA1  | 23    | blue   | 1-2   | drinking water pump  |
-| PA0  | 22    | green  | 1-1   | main water pump      |
-| PA3  | 25    | yellow | 1-4   |                      |
-| PA2  | 24    | orange | 1-3   |                      |
-| PA5  | 27    | red    | 2-2   |                      |
-| PA4  | 26    | brown  | 2-1   |                      |
-| PA7  | 29    | black  | 2-4   |                      |
-| PA6  | 28    | white  | 2-3   |                      |
-| PC6  | 31    | gray   | 4-3   |                      |
-| PC7  | 30    | purple | 4-4   |                      |
-| PC4  | 33    | blue   | 4-1   |                      |
-| PC5  | 32    | green  | 4-2   |                      |
-| PC2  | 35    | yellow | 3-3   |                      |
-| PC3  | 34    | orange | 3-4   |                      |
-| PC0  | 37    | red    | 3-1   |                      |
-| PC1  | 36    | brown  | 3-2   |                      |
-| PG2  | 39    | black  |       | sink (foot switch)   |
-| PD7  | 38    | white  |       |                      |
-| PG0  | 41    | gray   |       | sink (faucet)        |
-| PG1  | 40    | purple |       | shower               |
-| PL6  | 43    | blue   | 6-3   |                      |
-| PL7  | 42    | green  | 6-4   |                      |
-| PL4  | 45    | yellow | 6-1   |                      |
-| PL5  | 44    | orange | 6-2   |                      |
-| PL2  | 47    | red    | 5-3   |                      |
-| PL3  | 46    | brown  | 5-4   |                      |
-| PL0  | 49    | black  | 5-1   |                      |
-| PL1  | 48    | white  | 5-2   |                      |
-| PB2  | 51    | gray   |       | free input           |
-| PB3  | 50    | purple |       | free input           |
-| PB0  | 53    | blue   |       | free input           |
-| PB1  | 52    | green  |       | free input           |
-|      | GND   | yellow |       |                      |
-|      | GND   | orange |       |                      |
-|      |       | red    |       |                      |
-|      |       | brown  |       |                      |
+| Pin | Type | Internal | Label | Color  | Relay | Connected To         |
+| --- | ---- | -------- | ----- | ------ | ----- | -------------------- |
+|     |      |          |       | black  |       |                      |
+|     |      |          |       | white  |       |                      |
+|     |      |          | 5V    | gray   |       |                      |
+|     |      |          | 5V    | purple |       |                      |
+| PA1 | Out  | 0,1      | 23    | blue   | 1-2   | drinking water pump  |
+| PA0 | Out  | 0,0      | 22    | green  | 1-1   | main water pump      |
+| PA3 | Out  | 0,3      | 25    | yellow | 1-4   |                      |
+| PA2 | Out  | 0,2      | 24    | orange | 1-3   |                      |
+| PA5 | Out  | 0,5      | 27    | red    | 2-2   |                      |
+| PA4 | Out  | 0,4      | 26    | brown  | 2-1   |                      |
+| PA7 | Out  | 0,7      | 29    | black  | 2-4   |                      |
+| PA6 | Out  | 0,6      | 28    | white  | 2-3   |                      |
+| PC6 | Out  | 1,6      | 31    | gray   | 4-3   |                      |
+| PC7 | Out  | 1,7      | 30    | purple | 4-4   |                      |
+| PC4 | Out  | 1,4      | 33    | blue   | 4-1   |                      |
+| PC5 | Out  | 1,5      | 32    | green  | 4-2   |                      |
+| PC2 | Out  | 1,2      | 35    | yellow | 3-3   |                      |
+| PC3 | Out  | 1,3      | 34    | orange | 3-4   |                      |
+| PC0 | Out  | 1,0      | 37    | red    | 3-1   |                      |
+| PC1 | Out  | 1,1      | 36    | brown  | 3-2   |                      |
+| PG2 | In   | 2,2      | 39    | black  |       | sink (foot switch)   |
+| PD7 |      |          | 38    | white  |       |                      |
+| PG0 | In   | 2,0      | 41    | gray   |       | sink (faucet)        |
+| PG1 | In   | 2,1      | 40    | purple |       | shower               |
+| PL6 | Out  | 2,6      | 43    | blue   | 6-3   |                      |
+| PL7 | Out  | 2,7      | 42    | green  | 6-4   |                      |
+| PL4 | Out  | 2,4      | 45    | yellow | 6-1   |                      |
+| PL5 | Out  | 2,5      | 44    | orange | 6-2   |                      |
+| PL2 | Out  | 2,2      | 47    | red    | 5-3   |                      |
+| PL3 | Out  | 2,3      | 46    | brown  | 5-4   |                      |
+| PL0 | Out  | 2,0      | 49    | black  | 5-1   |                      |
+| PL1 | Out  | 2,1      | 48    | white  | 5-2   |                      |
+| PB2 | In   | 1,2      | 51    | gray   |       | free input           |
+| PB3 | In   | 1,3      | 50    | purple |       | free input           |
+| PB0 | In   | 1,0      | 53    | blue   |       | free input           |
+| PB1 | In   | 1,1      | 52    | green  |       | free input           |
+|     |      |          | GND   | yellow |       |                      |
+|     |      |          | GND   | orange |       |                      |
+|     |      |          |       | red    |       |                      |
+|     |      |          |       | brown  |       |                      |

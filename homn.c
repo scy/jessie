@@ -18,9 +18,14 @@
 	#define SWITCH_A_DDR  DDRC
 	#define SWITCH_A_MASK 0b00111111
 	#define SWITCH_A_IN   PINC
-	#define RELAY_A_PORT  PORTD
-	#define RELAY_A_DDR   DDRD
-	#define RELAY_A_MASK  0b11110000
+
+	#define OUT0_PORT PORTD
+	#define OUT0_DDR  DDRD
+	#define OUT0_MASK 0b11111100
+
+	#define OUT1_PORT PORTB
+	#define OUT1_DDR  DDRB
+	#define OUT1_MASK 0b00000110
 #else
 	#error Unknown MCU type, please define LED port.
 #endif
@@ -44,8 +49,9 @@
 #define MAPPED_PORT(map)    ((map >> 3) & 0x07)
 #define MAPPED_PIN(map)     (map & 0x07)
 #define PORT_PIN(port, pin) (((port & 0x07) << 3) | (pin & 0x07))
-const uint8_t INOUTMAP[1][8] PROGMEM = {
-	{ PUSH_BTN | PORT_PIN(0,4),   TGGL_BTN | PORT_PIN(0,7),   PUSH_BTN | PORT_PIN(0,6),   TGGL_BTN | PORT_PIN(0,7),   UNMAPPED,   UNMAPPED,   UNMAPPED,   UNMAPPED }
+const uint8_t INOUTMAP[2][8] PROGMEM = {
+	{ PUSH_BTN | PORT_PIN(0,4),   TGGL_BTN | PORT_PIN(0,7),   PUSH_BTN | PORT_PIN(1,1),   TGGL_BTN | PORT_PIN(0,7),   UNMAPPED,   UNMAPPED,   UNMAPPED,   UNMAPPED },
+	{ PUSH_BTN | PORT_PIN(1,1),   UNMAPPED,                   UNMAPPED,                   UNMAPPED,                   UNMAPPED,   UNMAPPED,   UNMAPPED,   UNMAPPED },
 };
 
 
@@ -135,19 +141,41 @@ void led_loop(struct timer *t) {
 
 
 
+void toggle_out_pin(const uint8_t out_port, const uint8_t out_pin) {
+	// Always make sure to apply the OUTn_MASK so that we can't write to a non-output pin.
+	switch (out_port) {
+		case 0:
+			OUT0_PORT ^= ((1 << out_pin) & OUT0_MASK);
+			break;
+		case 1:
+			OUT1_PORT ^= ((1 << out_pin) & OUT1_MASK);
+			break;
+	}
+}
+
+void set_out_pin(const uint8_t out_port, const uint8_t out_pin, const bool enable) {
+	// Always make sure to apply the OUTn_MASK so that we can't write to a non-output pin.
+	switch (out_port) {
+		case 0:
+			OUT0_PORT = (((enable ? 1 : 0) << out_pin) & OUT0_MASK) | (OUT0_PORT & ~OUT0_MASK);
+			break;
+		case 1:
+			OUT1_PORT = (((enable ? 1 : 0) << out_pin) & OUT1_MASK) | (OUT1_PORT & ~OUT1_MASK);
+			break;
+	}
+}
+
 void handle_button(const uint8_t in_port, const uint8_t in_pin, const bool high) {
 	// Get the mapping definition for this button.
 	const uint8_t mapping = pgm_read_byte(&(INOUTMAP[in_port][in_pin]));
-	// Create a mask for only the output pin that this button controls. Make sure to not write to a disallowed pin.
-	uint8_t outpinmask = (1 << MAPPED_PIN(mapping)) & RELAY_A_MASK;
 
 	switch (MAPPED_TYPE(mapping)) {
 		case PUSH_BTN: // While pushed, turn on. Turn off when let go.
-			RELAY_A_PORT = (((high ? 0 : 1) << MAPPED_PIN(mapping)) & outpinmask) | (RELAY_A_PORT & ~outpinmask);
+			set_out_pin(MAPPED_PORT(mapping), MAPPED_PIN(mapping), !high);
 			break;
 		case TGGL_BTN: // When pushed, toggle the state of the output pin. Do nothing when let go.
 			if (!high) {
-				RELAY_A_PORT ^= outpinmask;
+				toggle_out_pin(MAPPED_PORT(mapping), MAPPED_PIN(mapping));
 			}
 			break;
 	}
@@ -206,8 +234,11 @@ void init_outputs() {
 		RELAYTEST_DDR |= 0xf0;
 		RELAYTEST_PORT = 0x10 | (RELAYTEST_PORT & 0x0f);
 	#else
-		RELAY_A_DDR  |=  RELAY_A_MASK; // Set DDR for allowed pins.
-		RELAY_A_PORT &= ~RELAY_A_MASK; // Set all outputs to off, keeping other pins untouched.
+		OUT0_DDR  |=  OUT0_MASK; // Set DDR for allowed pins.
+		OUT0_PORT &= ~OUT0_MASK; // Set all outputs to off, keeping other pins untouched.
+		// Same for other ports.
+		OUT1_DDR  |=  OUT1_MASK;
+		OUT1_PORT &= ~OUT1_MASK;
 	#endif
 }
 

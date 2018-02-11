@@ -12,12 +12,11 @@
 
 #ifdef __AVR_ATmega168__
 	#define ONBOARD_LED 0b00100000
-	#define RELAYTEST_PORT PORTD
-	#define RELAYTEST_DDR DDRD
 	#define SWITCH_A_PORT PORTC
 	#define SWITCH_A_DDR  DDRC
 	#define SWITCH_A_MASK 0b00111111
 	#define SWITCH_A_IN   PINC
+	#define MAX_OUTPORT 1
 
 	#define OUT0_PORT PORTD
 	#define OUT0_DDR  DDRD
@@ -141,28 +140,34 @@ void led_loop(struct timer *t) {
 
 
 
-void toggle_out_pin(const uint8_t out_port, const uint8_t out_pin) {
+bool toggle_out_pin(const uint8_t out_port, const uint8_t out_pin) {
 	// Always make sure to apply the OUTn_MASK so that we can't write to a non-output pin.
 	switch (out_port) {
 		case 0:
-			OUT0_PORT ^= ((1 << out_pin) & OUT0_MASK);
+			if (((1 << out_pin) & OUT0_MASK) == 0) { return false; }
+			OUT0_PORT ^= 1 << out_pin;
 			break;
 		case 1:
-			OUT1_PORT ^= ((1 << out_pin) & OUT1_MASK);
+			if (((1 << out_pin) & OUT1_MASK) == 0) { return false; }
+			OUT1_PORT ^= 1 << out_pin;
 			break;
 	}
+	return true;
 }
 
-void set_out_pin(const uint8_t out_port, const uint8_t out_pin, const bool enable) {
+bool set_out_pin(const uint8_t out_port, const uint8_t out_pin, const bool enable) {
 	// Always make sure to apply the OUTn_MASK so that we can't write to a non-output pin.
 	switch (out_port) {
 		case 0:
-			OUT0_PORT = (((enable ? 1 : 0) << out_pin) & OUT0_MASK) | (OUT0_PORT & ~OUT0_MASK);
+			if (((1 << out_pin) & OUT0_MASK) == 0) { return false; }
+			OUT0_PORT = ((enable ? 1 : 0) << out_pin) | (OUT0_PORT & ~OUT0_MASK);
 			break;
 		case 1:
-			OUT1_PORT = (((enable ? 1 : 0) << out_pin) & OUT1_MASK) | (OUT1_PORT & ~OUT1_MASK);
+			if (((1 << out_pin) & OUT1_MASK) == 0) { return false; }
+			OUT1_PORT = ((enable ? 1 : 0) << out_pin) | (OUT1_PORT & ~OUT1_MASK);
 			break;
 	}
+	return true;
 }
 
 void handle_button(const uint8_t in_port, const uint8_t in_pin, const bool high) {
@@ -230,35 +235,43 @@ void debounce(struct timer *t) {
 
 
 void init_outputs() {
-	#ifdef DO_RELAYTEST
-		RELAYTEST_DDR |= 0xf0;
-		RELAYTEST_PORT = 0x10 | (RELAYTEST_PORT & 0x0f);
-	#else
-		OUT0_DDR  |=  OUT0_MASK; // Set DDR for allowed pins.
-		OUT0_PORT &= ~OUT0_MASK; // Set all outputs to off, keeping other pins untouched.
-		// Same for other ports.
-		OUT1_DDR  |=  OUT1_MASK;
-		OUT1_PORT &= ~OUT1_MASK;
-	#endif
+	OUT0_DDR  |=  OUT0_MASK; // Set DDR for allowed pins.
+	OUT0_PORT &= ~OUT0_MASK; // Set all outputs to off, keeping other pins untouched.
+	// Same for other ports.
+	OUT1_DDR  |=  OUT1_MASK;
+	OUT1_PORT &= ~OUT1_MASK;
 }
 
-void relay_test(struct timer *t) {
-	uint8_t states = (RELAYTEST_PORT & RELAYTEST_DDR) >> 4;
-	states <<= 1;
-	if (states > 0x0f) {
-		states = 0x01;
+void output_test(struct timer *t) {
+	static uint8_t port = MAX_OUTPORT + 1; // Will automatically be fixed on the first iteration.
+	static uint8_t pin  = 0;
+
+	// Disable the pin that was active before. If that was not a valid pin, nothing will happen.
+	toggle_out_pin(port, pin);
+
+	// Go to the next pin. If we are done with the pins on this port, go to pin 0 of the next port instead.
+	if (++pin > 7) {
+		port++;
+		pin = 0;
 	}
-	RELAYTEST_PORT = (states << 4) | (RELAYTEST_PORT & 0x0f);
-	t->ms = 1000;
+
+	// If we are beyond the last valid output port, start again from the beginning.
+	if (port > MAX_OUTPORT) {
+		port = pin = 0;
+	}
+
+	// Enable the new pin and, depending on whether that was a valid pin, come back in a second or instantly.
+	t->ms = toggle_out_pin(port, pin) ? 1000 : 0;
 }
 
 
 
 struct timer timers[] = {
 	{0, led_loop},
-	{0, debounce},
-	#ifdef DO_RELAYTEST
-		{1000, relay_test},
+	#ifdef DO_OUTPUTTEST
+		{1000, output_test},
+	#else
+		{0, debounce},
 	#endif
 };
 

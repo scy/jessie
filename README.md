@@ -26,6 +26,12 @@ If you want to flash the output test routine instead of the normal button behavi
 Tested on Debian Stretch. 
 You can use `make install-deps` to install avr-libc and avrdude.
 
+## Hardware Specs and Limits
+
+I'm using six C-Control relay boards (Conrad SKU 1488848) with 4 relays on each one. 
+These can run on 12V DC, the Arduinos as well. 
+Each relay can switch up to 30V DC or 250V AC, both up to 10A, and each board eats up to 20 mA power.
+
 ## Port/Pin Mapping
 
 This code is designed to run on two devices: 

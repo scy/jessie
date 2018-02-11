@@ -11,7 +11,9 @@
 #include <avr/sleep.h>
 
 #ifdef __AVR_ATmega168__
-	#define ONBOARD_LED 0b00100000
+	#define LED_PORT PORTB
+	#define LED_DDR  DDRB
+	#define LED_MASK 0b00100000
 
 	#define NUM_INPORTS 2
 	#define MAX_OUTPORT 1
@@ -124,19 +126,15 @@ const struct led_animation_step led_animation[] = {
 
 void init_led() {
 	// Set the LED pin to be an output.
-	DDRB |= ONBOARD_LED;
-}
-
-void toggle_led() {
-	PORTB ^= ONBOARD_LED; // Toggle the LED.
+	LED_DDR |= LED_MASK;
 }
 
 void led_loop(struct timer *t) {
 	static uint8_t step = 0;
 	if (led_animation[step].active) {
-		PORTB |= ONBOARD_LED;
+		LED_PORT |= LED_MASK;
 	} else {
-		PORTB &= ~ONBOARD_LED;
+		LED_PORT &= ~LED_MASK;
 	}
 	t->ms = led_animation[step].duration;
 	if (step < (ARRAY_SIZE(led_animation) - 1)) {

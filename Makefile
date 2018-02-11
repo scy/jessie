@@ -4,6 +4,9 @@ MCU = atmega168
 # gcc options.
 OPTS = -mmcu=${MCU} -Wall
 
+# Optional additional gcc flags.
+FLAGS =
+
 .PHONY: clean flash install-deps
 
 # Works on Debian Stretch.
@@ -11,7 +14,7 @@ install-deps:
 	sudo apt-get install avr-libc avrdude gcc-avr
 
 homn.o: homn.c
-	avr-gcc ${OPTS} -Os -std=c99 -c $^
+	avr-gcc ${OPTS} ${FLAGS} -Os -std=c99 -c $^
 
 homn.elf: homn.o
 	avr-gcc ${OPTS} -o $@ $^

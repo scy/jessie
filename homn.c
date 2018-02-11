@@ -12,11 +12,19 @@
 
 #ifdef __AVR_ATmega168__
 	#define ONBOARD_LED 0b00100000
-	#define SWITCH_A_PORT PORTC
-	#define SWITCH_A_DDR  DDRC
-	#define SWITCH_A_MASK 0b00111111
-	#define SWITCH_A_IN   PINC
+
+	#define NUM_INPORTS 2
 	#define MAX_OUTPORT 1
+
+	#define IN0_PORT PORTC
+	#define IN0_DDR  DDRC
+	#define IN0_MASK 0b00111111
+	#define IN0_VAL  PINC
+
+	#define IN1_PORT PORTB
+	#define IN1_DDR  DDRB
+	#define IN1_MASK 0b00000001
+	#define IN1_VAL  PINB
 
 	#define OUT0_PORT PORTD
 	#define OUT0_DDR  DDRD
@@ -70,11 +78,11 @@ bool timer_int_occured = false;
 
 // Since how many ticks does the input pin return the same state? When this reaches DEBOUNCE_AT, the state is considered
 // stable. [0] is pin 0 of a port, [1] is pin 1 and so on.
-uint8_t debounce_counter[8];
+uint8_t debounce_counter[NUM_INPORTS][8];
 // Bitmask of pins that are currently switching from one state to the other. 1 means debouncing is active.
-uint8_t debounce_active;
+uint8_t debounce_active[NUM_INPORTS];
 // Debounced (i.e. stable) values of the input pins. Please don't write to this unless you're debounce().
-uint8_t debounced;
+uint8_t debounced[NUM_INPORTS];
 
 
 
@@ -189,47 +197,53 @@ void handle_button(const uint8_t in_port, const uint8_t in_pin, const bool high)
 
 
 void init_inputs() {
-	SWITCH_A_DDR  &= ~SWITCH_A_MASK; // Set DDR for allowed pins.
-	SWITCH_A_PORT |=  SWITCH_A_MASK; // Enable pull-ups for input pins.
+	IN0_DDR  &= ~IN0_MASK; // Set DDR for allowed pins.
+	IN0_PORT |=  IN0_MASK; // Enable pull-ups for input pins.
+	// Same for other ports.
+	IN1_DDR  &= ~IN1_MASK;
+	IN1_PORT |=  IN1_MASK;
 }
 
-void debounce(struct timer *t) {
-	// Make sure the values don't change while we're looping over them.
-	uint8_t inputs = SWITCH_A_IN;
+void debounce(const uint8_t port, const uint8_t port_mask, const uint8_t states) {
 	// Create a bitmask of all pins where the measured value is not equal to the one we consider stable.
-	uint8_t changed = debounced ^ inputs;
+	uint8_t changed = debounced[port] ^ states;
 	// Number of the pin. Required for indexing in debounce_counter[].
 	uint8_t pin = 0;
 	// Bitmask that only selects the current pin, i.e. 1 << pin. Will be set in the for loop below.
 	uint8_t mask;
 
-	t->ms = 0; // Call me again at the next tick.
 	for (pin = 0; pin < 8; pin++) {
 		mask = 1 << pin;
-		if ((SWITCH_A_MASK & mask) == 0) continue; // Skip pins that are no inputs.
+		if ((port_mask & mask) == 0) continue; // Skip pins that are no inputs.
 		if (changed & mask) { // The pin seems to change.
-			if (debounce_active & mask) { // This pin is already debouncing, increase the counter.
-				if (debounce_counter[pin] >= DEBOUNCE_AT) { // This pin is stable enough.
+			if (debounce_active[port] & mask) { // This pin is already debouncing, increase the counter.
+				if (debounce_counter[port][pin] >= DEBOUNCE_AT) { // This pin is stable enough.
 					// Set its value.
-					debounced = (debounced & ~mask) | (inputs & mask);
+					debounced[port] = (debounced[port] & ~mask) | (states & mask);
 					// Stop debouncing it.
-					debounce_active &= ~mask;
+					debounce_active[port] &= ~mask;
 					// Handle the change.
-					handle_button(0, pin, (inputs & mask) != 0);
+					handle_button(port, pin, (states & mask) != 0);
 				} else { // Not stable enough, keep counting.
-					debounce_counter[pin]++;
+					debounce_counter[port][pin]++;
 				}
 			} else { // This pin is not debouncing yet, start the process.
-				debounce_active |= mask;
-				debounce_counter[pin] = 1;
+				debounce_active[port] |= mask;
+				debounce_counter[port][pin] = 1;
 			}
 		} else { // The measured state equals the debounced one.
-			if (debounce_active & mask) { // This pin is currently debouncing, but returned to its original state.
+			if (debounce_active[port] & mask) { // This pin is currently debouncing, but returned to its original state.
 				// Stop debouncing it.
-				debounce_active &= ~mask;
+				debounce_active[port] &= ~mask;
 			}
 		}
 	}
+}
+
+void scan_inputs(struct timer *t) {
+	debounce(0, IN0_MASK, IN0_VAL);
+	debounce(1, IN1_MASK, IN1_VAL);
+	t->ms = 0; // Call me again at the next tick.
 }
 
 
@@ -271,7 +285,7 @@ struct timer timers[] = {
 	#ifdef DO_OUTPUTTEST
 		{1000, output_test},
 	#else
-		{0, debounce},
+		{0, scan_inputs},
 	#endif
 };
 

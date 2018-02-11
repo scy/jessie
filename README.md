@@ -48,17 +48,18 @@ The ports are kind of a mess here.
 Some are scattered all over the board, others are labelled in the opposite direction (i.e. pin 0 labelled 37, pin 7 labelled 30). 
 I've tried to reflect this in the table below.
 
-| Port  | Usage     | Notes                                                          |
-|:-----:| --------- | -------------------------------------------------------------- |
-| **A** | **Out 0** | (labelled _Digital_ 22 to 29)                                  |
-| **B** | **In 0**  | (labelled _Digital_ 53 to 50 and _PWM_ 10 to 13)               |
-| **C** | **Out 1** | (labelled _Digital_ 37 to 30)                                  |
-| **F** | reserved  | (labelled _Analog In_ 0 to 7) reserved for actual analog input |
-| **G** | **In 2**  | (low 3 pins only, labelled _Digital_ 41 to 39)                 |
-| **K** | **In 1**  | (labelled _Analog In_ 8 to 15)                                 |
-| **L** | **Out 2** | (labelled _Digital_ 49 to 42)                                  |
+| Port  | Usage     | Notes                                                             |
+|:-----:| --------- | ----------------------------------------------------------------- |
+| **A** | **Out 0** | (labelled _Digital_ 22 to 29)                                     |
+| **B** | **In 1**  | (low 7 bits only, labelled _Digital_ 53 to 50 and _PWM_ 10 to 12) |
+| **C** | **Out 1** | (labelled _Digital_ 37 to 30)                                     |
+| **F** | reserved  | (labelled _Analog In_ 0 to 7) reserved for actual analog input    |
+| **G** | **In 2**  | (low 3 pins only, labelled _Digital_ 41 to 39)                    |
+| **K** | **In 0**  | (labelled _Analog In_ 8 to 15)                                    |
+| **L** | **Out 2** | (labelled _Digital_ 49 to 42)                                     |
 
-That's 19 inputs and 24 outputs, with 8 pins reserved for analog input (e.g. temperature or water tank).
+That's 18 inputs and 24 outputs, with 8 pins reserved for analog input (e.g. temperature or water tank). 
+I haven't used PB7 (digital 13), since it doubles as the LED.
 
 ## How to Flash
 

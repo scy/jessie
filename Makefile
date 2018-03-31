@@ -2,7 +2,7 @@
 MCU = atmega168
 
 # gcc options.
-OPTS = -mmcu=${MCU} -Wall
+OPTS = -mmcu=${MCU} -Wall -DACTIVE_HIGH
 
 # Optional additional gcc flags.
 FLAGS =

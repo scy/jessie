@@ -238,15 +238,20 @@ bool set_out_pin(const uint8_t out_port, const uint8_t out_pin, const bool enabl
 }
 
 void handle_button(const uint8_t in_port, const uint8_t in_pin, const bool high) {
+	#ifdef ACTIVE_HIGH
+		#define BTN_PUSHED high
+	#else
+		#define BTN_PUSHED !high
+	#endif
 	// Get the mapping definition for this button.
 	const uint8_t mapping = pgm_read_byte(&(INOUTMAP[in_port][in_pin]));
 
 	switch (MAPPED_TYPE(mapping)) {
 		case PUSH_BTN: // While pushed, turn on. Turn off when let go.
-			set_out_pin(MAPPED_PORT(mapping), MAPPED_PIN(mapping), !high);
+			set_out_pin(MAPPED_PORT(mapping), MAPPED_PIN(mapping), BTN_PUSHED);
 			break;
 		case TGGL_BTN: // When pushed, toggle the state of the output pin. Do nothing when let go.
-			if (!high) {
+			if (BTN_PUSHED) {
 				toggle_out_pin(MAPPED_PORT(mapping), MAPPED_PIN(mapping));
 			}
 			break;
@@ -256,19 +261,31 @@ void handle_button(const uint8_t in_port, const uint8_t in_pin, const bool high)
 
 
 void init_inputs() {
-#if NUM_INPORTS >= 1
-	IN0_DDR  &= ~IN0_MASK; // Set DDR for allowed pins.
-	IN0_PORT |=  IN0_MASK; // Enable pull-ups for input pins.
-#endif
+	#if NUM_INPORTS >= 1
+		IN0_DDR  &= ~IN0_MASK; // Set DDR for allowed pins.
+		#ifdef ACTIVE_HIGH
+			IN0_PORT &= ~IN0_MASK; // Explicitly disable pull-ups for input pins.
+		#else
+			IN0_PORT |=  IN0_MASK; // Enable pull-ups for input pins.
+		#endif
+	#endif
 	// Same for other ports.
-#if NUM_INPORTS >= 2
-	IN1_DDR  &= ~IN1_MASK;
-	IN1_PORT |=  IN1_MASK;
-#endif
-#if NUM_INPORTS >= 3
-	IN2_DDR  &= ~IN2_MASK;
-	IN2_PORT |=  IN2_MASK;
-#endif
+	#if NUM_INPORTS >= 2
+		IN1_DDR  &= ~IN1_MASK;
+		#ifdef ACTIVE_HIGH
+			IN1_PORT &= ~IN1_MASK;
+		#else
+			IN1_PORT |=  IN1_MASK;
+		#endif
+	#endif
+	#if NUM_INPORTS >= 3
+		IN2_DDR  &= ~IN2_MASK;
+		#ifdef ACTIVE_HIGH
+			IN2_PORT &= ~IN2_MASK;
+		#else
+			IN2_PORT |=  IN2_MASK;
+		#endif
+	#endif
 }
 
 void debounce(const uint8_t port, const uint8_t port_mask, const uint8_t states) {

@@ -35,6 +35,11 @@ I'm using six C-Control relay boards (Conrad SKU 1488848) with 4 relays on each 
 These can run on 12V DC, the Arduinos as well. 
 Each relay can switch up to 30V DC or 250V AC, both up to 10A, and each board eats up to 20 mA power.
 
+Since I didn't specify my needs well enough to the company that built the van's interior, the physical push buttons in my furniture supply 5V when pushed instead of connecting to ground, i.e. they are active high. 
+This keeps me from using the AVR's internal pull-up resistors; I had to build external pull-downs instead. 
+The software supports both, depending on whether the constant `ACTIVE_HIGH` is defined when building. 
+The Makefile defines it by default.
+
 ## Port/Pin Mapping
 
 This code is designed to run on two devices: 

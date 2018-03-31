@@ -26,7 +26,7 @@ optiboot_%.hex: ${OPTIBOOT}/optiboot_%.hex
 
 # I'm using an AVRISP MkII to flash the bootloader (if I need to).
 flash-bootloader: optiboot_${MCU}.hex
-	sudo avrdude -c avrisp2 -p ${MCU} -P usb -U flash:w:$^ -n -v
+	sudo avrdude -c avrisp2 -p ${MCU} -P usb -U flash:w:$^ -v
 
 homn.o: homn.c
 	avr-gcc ${OPTS} ${FLAGS} -Os -std=c99 -c $^

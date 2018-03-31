@@ -13,9 +13,12 @@ I'm in a bit of a hurry. Documentation will improve.
   * UART handling and commands
   * UART heartbeat and host heartbeat checking
 
-## Bugs
+## Bugs and Quirks
 
 * It might behave unexpectedly if you configure it to have no input or no output port.
+* Because of [optiboot#177](https://github.com/Optiboot/optiboot/issues/177), building `optiboot_atmega1280.hex` from source might not be possible easily on your system. 
+  Luckily, that file is provided as a complete binary in the Optiboot repo, so we can simply copy it. 
+  The problem with compiling seems to be the EEPROM writing; you should be able to build it if you _don't_ enable `-DBIGBOOT`, but the Optiboot makefile won't let you (`CFLAGS` is overridden, `DEFS` (where you could do `-UBIGBOOT`) comes _before_ the builtin `-DBIGBOOT`).
   
 ## How to Flash
 

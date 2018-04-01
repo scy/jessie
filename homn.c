@@ -213,24 +213,34 @@ bool toggle_out_pin(const uint8_t out_port, const uint8_t out_pin) {
 }
 
 bool set_out_pin(const uint8_t out_port, const uint8_t out_pin, const bool enable) {
+	uint8_t this_pin = 1 << out_pin;
 	// Always make sure to apply the OUTn_MASK so that we can't write to a non-output pin.
 	switch (out_port) {
 	#if MAX_OUTPORT >= 0
 		case 0:
-			if (((1 << out_pin) & OUT0_MASK) == 0) { return false; }
-			OUT0_PORT = ((enable ? 1 : 0) << out_pin) | (OUT0_PORT & ~OUT0_MASK);
+			if ((this_pin & OUT0_MASK) == 0) { return false; }
+			OUT0_PORT = (enable
+				? (OUT0_PORT |  this_pin)
+				: (OUT0_PORT & ~this_pin)
+			) & OUT0_MASK;
 			break;
 	#endif
 	#if MAX_OUTPORT >= 1
 		case 1:
-			if (((1 << out_pin) & OUT1_MASK) == 0) { return false; }
-			OUT1_PORT = ((enable ? 1 : 0) << out_pin) | (OUT1_PORT & ~OUT1_MASK);
+			if ((this_pin & OUT1_MASK) == 0) { return false; }
+			OUT1_PORT = (enable
+				? (OUT1_PORT |  this_pin)
+				: (OUT1_PORT & ~this_pin)
+			) & OUT1_MASK;
 			break;
 	#endif
 	#if MAX_OUTPORT >= 2
 		case 2:
-			if (((1 << out_pin) & OUT2_MASK) == 0) { return false; }
-			OUT2_PORT = ((enable ? 1 : 0) << out_pin) | (OUT2_PORT & ~OUT2_MASK);
+			if ((this_pin & OUT2_MASK) == 0) { return false; }
+			OUT2_PORT = (enable
+				? (OUT2_PORT |  this_pin)
+				: (OUT2_PORT & ~this_pin)
+			) & OUT2_MASK;
 			break;
 	#endif
 	}

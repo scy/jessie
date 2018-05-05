@@ -7,13 +7,100 @@
 #include <stdio.h>
 #include <avr/io.h>
 #include <avr/interrupt.h>
+#include <avr/pgmspace.h>
 #include <avr/sleep.h>
 
+// Simple mappings of switches to relays.
+#define UNMAPPED            0
+#define PUSH_BTN            0x40
+#define TGGL_BTN            0x80
+// "Special" buttons are not implemented yet.
+#define SPECIAL             0xc0
+#define IS_MAPPED(map)      ((map & 0xc0) != 0)
+#define MAPPED_TYPE(map)    (map & 0xc0)
+#define MAPPED_PORT(map)    ((map >> 3) & 0x07)
+#define MAPPED_PIN(map)     (map & 0x07)
+#define PORT_PIN(port, pin) (((port & 0x07) << 3) | (pin & 0x07))
+
+
+
 #ifdef __AVR_ATmega168__
-	#define ONBOARD_LED 0b00100000
+	#define LED_PORT PORTB
+	#define LED_DDR  DDRB
+	#define LED_MASK 0b00100000
+
+	#define NUM_INPORTS 2
+	#define MAX_OUTPORT 1
+
+	#define IN0_PORT PORTC
+	#define IN0_DDR  DDRC
+	#define IN0_MASK 0b00111111
+	#define IN0_VAL  PINC
+
+	#define IN1_PORT PORTB
+	#define IN1_DDR  DDRB
+	#define IN1_MASK 0b00000001
+	#define IN1_VAL  PINB
+
+	#define OUT0_PORT PORTD
+	#define OUT0_DDR  DDRD
+	#define OUT0_MASK 0b11111100
+
+	#define OUT1_PORT PORTB
+	#define OUT1_DDR  DDRB
+	#define OUT1_MASK 0b00000110
+
+	const uint8_t INOUTMAP[NUM_INPORTS][8] PROGMEM = {
+		{ PUSH_BTN | PORT_PIN(0,4),   TGGL_BTN | PORT_PIN(0,7),   PUSH_BTN | PORT_PIN(1,1),   TGGL_BTN | PORT_PIN(0,7),   UNMAPPED,   UNMAPPED,   UNMAPPED,   UNMAPPED },
+		{ PUSH_BTN | PORT_PIN(1,1),   UNMAPPED,                   UNMAPPED,                   UNMAPPED,                   UNMAPPED,   UNMAPPED,   UNMAPPED,   UNMAPPED },
+	};
+#elif defined __AVR_ATmega1280__
+	#define LED_PORT PORTB
+	#define LED_DDR  DDRB
+	#define LED_MASK 0b10000000
+
+	#define NUM_INPORTS 3
+	#define MAX_OUTPORT 2
+
+	#define IN0_PORT PORTK
+	#define IN0_DDR  DDRK
+	#define IN0_MASK 0b11111111
+	#define IN0_VAL  PINK
+
+	#define IN1_PORT PORTB
+	#define IN1_DDR  DDRB
+	#define IN1_MASK 0b01111111
+	#define IN1_VAL  PINB
+
+	#define IN2_PORT PORTG
+	#define IN2_DDR  DDRG
+	#define IN2_MASK 0b00000111
+	#define IN2_VAL  PING
+
+	#define OUT0_PORT PORTA
+	#define OUT0_DDR  DDRA
+	#define OUT0_MASK 0b11111111
+
+	#define OUT1_PORT PORTC
+	#define OUT1_DDR  DDRC
+	#define OUT1_MASK 0b11111111
+
+	#define OUT2_PORT PORTL
+	#define OUT2_DDR  DDRL
+	#define OUT2_MASK 0b11111111
+
+	const uint8_t INOUTMAP[NUM_INPORTS][8] PROGMEM = {
+		{ UNMAPPED,                   UNMAPPED,                   UNMAPPED,                   UNMAPPED,   UNMAPPED,   UNMAPPED,   UNMAPPED,   UNMAPPED },
+		{ UNMAPPED,                   UNMAPPED,                   UNMAPPED,                   UNMAPPED,   UNMAPPED,   UNMAPPED,   UNMAPPED,   UNMAPPED },
+		{ PUSH_BTN | PORT_PIN(0,0),   PUSH_BTN | PORT_PIN(0,0),   PUSH_BTN | PORT_PIN(0,1),   UNMAPPED,   UNMAPPED,   UNMAPPED,   UNMAPPED,   UNMAPPED },
+	};
 #else
-	#error Unknown MCU type, please define LED port.
+	#error Unknown MCU type, please add the necessary defines.
 #endif
+
+// After how many ticks (here: ms) of having the same value should we consider an input stable/debounced? May not be
+// larger than 255, since it has to fit into uint8_t.
+#define DEBOUNCE_AT 50
 
 #define ARRAY_SIZE(X) (sizeof(X) / sizeof(*(X)))
 
@@ -29,6 +116,16 @@ struct timer {
 };
 
 bool timer_int_occured = false;
+
+
+
+// Since how many ticks does the input pin return the same state? When this reaches DEBOUNCE_AT, the state is considered
+// stable. [0] is pin 0 of a port, [1] is pin 1 and so on.
+uint8_t debounce_counter[NUM_INPORTS][8];
+// Bitmask of pins that are currently switching from one state to the other. 1 means debouncing is active.
+uint8_t debounce_active[NUM_INPORTS];
+// Debounced (i.e. stable) values of the input pins. Please don't write to this unless you're debounce().
+uint8_t debounced[NUM_INPORTS];
 
 
 
@@ -70,20 +167,15 @@ const struct led_animation_step led_animation[] = {
 
 void init_led() {
 	// Set the LED pin to be an output.
-	DDRB |= ONBOARD_LED;
-	// PORTB = ONBOARD_LED;
-}
-
-void toggle_led() {
-	PORTB ^= ONBOARD_LED; // Toggle the LED.
+	LED_DDR |= LED_MASK;
 }
 
 void led_loop(struct timer *t) {
 	static uint8_t step = 0;
 	if (led_animation[step].active) {
-		PORTB |= ONBOARD_LED;
+		LED_PORT |= LED_MASK;
 	} else {
-		PORTB &= ~ONBOARD_LED;
+		LED_PORT &= ~LED_MASK;
 	}
 	t->ms = led_animation[step].duration;
 	if (step < (ARRAY_SIZE(led_animation) - 1)) {
@@ -95,8 +187,215 @@ void led_loop(struct timer *t) {
 
 
 
+bool toggle_out_pin(const uint8_t out_port, const uint8_t out_pin) {
+	// Always make sure to apply the OUTn_MASK so that we can't write to a non-output pin.
+	switch (out_port) {
+	#if MAX_OUTPORT >= 0
+		case 0:
+			if (((1 << out_pin) & OUT0_MASK) == 0) { return false; }
+			OUT0_PORT ^= 1 << out_pin;
+			break;
+	#endif
+	#if MAX_OUTPORT >= 1
+		case 1:
+			if (((1 << out_pin) & OUT1_MASK) == 0) { return false; }
+			OUT1_PORT ^= 1 << out_pin;
+			break;
+	#endif
+	#if MAX_OUTPORT >= 2
+		case 2:
+			if (((1 << out_pin) & OUT2_MASK) == 0) { return false; }
+			OUT2_PORT ^= 1 << out_pin;
+			break;
+	#endif
+	}
+	return true;
+}
+
+bool set_out_pin(const uint8_t out_port, const uint8_t out_pin, const bool enable) {
+	uint8_t this_pin = 1 << out_pin;
+	// Always make sure to apply the OUTn_MASK so that we can't write to a non-output pin.
+	switch (out_port) {
+	#if MAX_OUTPORT >= 0
+		case 0:
+			if ((this_pin & OUT0_MASK) == 0) { return false; }
+			OUT0_PORT = (enable
+				? (OUT0_PORT |  this_pin)
+				: (OUT0_PORT & ~this_pin)
+			) & OUT0_MASK;
+			break;
+	#endif
+	#if MAX_OUTPORT >= 1
+		case 1:
+			if ((this_pin & OUT1_MASK) == 0) { return false; }
+			OUT1_PORT = (enable
+				? (OUT1_PORT |  this_pin)
+				: (OUT1_PORT & ~this_pin)
+			) & OUT1_MASK;
+			break;
+	#endif
+	#if MAX_OUTPORT >= 2
+		case 2:
+			if ((this_pin & OUT2_MASK) == 0) { return false; }
+			OUT2_PORT = (enable
+				? (OUT2_PORT |  this_pin)
+				: (OUT2_PORT & ~this_pin)
+			) & OUT2_MASK;
+			break;
+	#endif
+	}
+	return true;
+}
+
+void handle_button(const uint8_t in_port, const uint8_t in_pin, const bool high) {
+	#ifdef ACTIVE_HIGH
+		#define BTN_PUSHED high
+	#else
+		#define BTN_PUSHED !high
+	#endif
+	// Get the mapping definition for this button.
+	const uint8_t mapping = pgm_read_byte(&(INOUTMAP[in_port][in_pin]));
+
+	switch (MAPPED_TYPE(mapping)) {
+		case PUSH_BTN: // While pushed, turn on. Turn off when let go.
+			set_out_pin(MAPPED_PORT(mapping), MAPPED_PIN(mapping), BTN_PUSHED);
+			break;
+		case TGGL_BTN: // When pushed, toggle the state of the output pin. Do nothing when let go.
+			if (BTN_PUSHED) {
+				toggle_out_pin(MAPPED_PORT(mapping), MAPPED_PIN(mapping));
+			}
+			break;
+	}
+}
+
+
+
+void init_inputs() {
+	#if NUM_INPORTS >= 1
+		IN0_DDR  &= ~IN0_MASK; // Set DDR for allowed pins.
+		#ifdef ACTIVE_HIGH
+			IN0_PORT &= ~IN0_MASK; // Explicitly disable pull-ups for input pins.
+		#else
+			IN0_PORT |=  IN0_MASK; // Enable pull-ups for input pins.
+		#endif
+	#endif
+	// Same for other ports.
+	#if NUM_INPORTS >= 2
+		IN1_DDR  &= ~IN1_MASK;
+		#ifdef ACTIVE_HIGH
+			IN1_PORT &= ~IN1_MASK;
+		#else
+			IN1_PORT |=  IN1_MASK;
+		#endif
+	#endif
+	#if NUM_INPORTS >= 3
+		IN2_DDR  &= ~IN2_MASK;
+		#ifdef ACTIVE_HIGH
+			IN2_PORT &= ~IN2_MASK;
+		#else
+			IN2_PORT |=  IN2_MASK;
+		#endif
+	#endif
+}
+
+void debounce(const uint8_t port, const uint8_t port_mask, const uint8_t states) {
+	// Create a bitmask of all pins where the measured value is not equal to the one we consider stable.
+	uint8_t changed = debounced[port] ^ states;
+	// Number of the pin. Required for indexing in debounce_counter[].
+	uint8_t pin = 0;
+	// Bitmask that only selects the current pin, i.e. 1 << pin. Will be set in the for loop below.
+	uint8_t mask;
+
+	for (pin = 0; pin < 8; pin++) {
+		mask = 1 << pin;
+		if ((port_mask & mask) == 0) continue; // Skip pins that are no inputs.
+		if (changed & mask) { // The pin seems to change.
+			if (debounce_active[port] & mask) { // This pin is already debouncing, increase the counter.
+				if (debounce_counter[port][pin] >= DEBOUNCE_AT) { // This pin is stable enough.
+					// Set its value.
+					debounced[port] = (debounced[port] & ~mask) | (states & mask);
+					// Stop debouncing it.
+					debounce_active[port] &= ~mask;
+					// Handle the change.
+					handle_button(port, pin, (states & mask) != 0);
+				} else { // Not stable enough, keep counting.
+					debounce_counter[port][pin]++;
+				}
+			} else { // This pin is not debouncing yet, start the process.
+				debounce_active[port] |= mask;
+				debounce_counter[port][pin] = 1;
+			}
+		} else { // The measured state equals the debounced one.
+			if (debounce_active[port] & mask) { // This pin is currently debouncing, but returned to its original state.
+				// Stop debouncing it.
+				debounce_active[port] &= ~mask;
+			}
+		}
+	}
+}
+
+void scan_inputs(struct timer *t) {
+#if NUM_INPORTS >= 1
+	debounce(0, IN0_MASK, IN0_VAL);
+#endif
+#if NUM_INPORTS >= 2
+	debounce(1, IN1_MASK, IN1_VAL);
+#endif
+#if NUM_INPORTS >= 3
+	debounce(2, IN2_MASK, IN2_VAL);
+#endif
+	t->ms = 0; // Call me again at the next tick.
+}
+
+
+
+void init_outputs() {
+#if MAX_OUTPORT >= 0
+	OUT0_DDR  |=  OUT0_MASK; // Set DDR for allowed pins.
+	OUT0_PORT &= ~OUT0_MASK; // Set all outputs to off, keeping other pins untouched.
+#endif
+	// Same for other ports.
+#if MAX_OUTPORT >= 1
+	OUT1_DDR  |=  OUT1_MASK;
+	OUT1_PORT &= ~OUT1_MASK;
+#endif
+#if MAX_OUTPORT >= 2
+	OUT2_DDR  |=  OUT2_MASK;
+	OUT2_PORT &= ~OUT2_MASK;
+#endif
+}
+
+void output_test(struct timer *t) {
+	static uint8_t port = MAX_OUTPORT + 1; // Will automatically be fixed on the first iteration.
+	static uint8_t pin  = 0;
+
+	// Disable the pin that was active before. If that was not a valid pin, nothing will happen.
+	toggle_out_pin(port, pin);
+
+	// Go to the next pin. If we are done with the pins on this port, go to pin 0 of the next port instead.
+	if (++pin > 7) {
+		port++;
+		pin = 0;
+	}
+
+	// If we are beyond the last valid output port, start again from the beginning.
+	if (port > MAX_OUTPORT) {
+		port = pin = 0;
+	}
+
+	// Enable the new pin and, depending on whether that was a valid pin, come back in a second or instantly.
+	t->ms = toggle_out_pin(port, pin) ? 1000 : 0;
+}
+
+
+
 struct timer timers[] = {
 	{0, led_loop},
+	#ifdef DO_OUTPUTTEST
+		{1000, output_test},
+	#else
+		{0, scan_inputs},
+	#endif
 };
 
 void init_timer() {
@@ -128,6 +427,8 @@ void handle_timers() {
 
 int main() {
 	init_led();
+	init_inputs();
+	init_outputs();
 	init_timer();
 	sei();
 	set_sleep_mode(SLEEP_MODE_IDLE);

@@ -1,0 +1,3 @@
+[submodule "src/homn/thirdparty/optiboot"]
+	path = src/homn/thirdparty/optiboot
+	url = https://github.com/Optiboot/optiboot.git

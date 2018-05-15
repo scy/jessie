@@ -10,6 +10,18 @@ There will be a Raspberry Pi 3 continuously running to provide
 
 Although it won’t be built into the dashboard of the car, I can still draw some inspiration from the [Raspberry Pi 2 CarPC project](http://engineering-diy.blogspot.com/).
 
+## Tablet
+
+There's currently an Android tablet used as the back-up camera display and for general navigation.
+
+[AutoArduino](https://play.google.com/store/apps/details?id=com.joaomgcd.autoarduino) could be used to send commands from Tasker to something connected via USB Serial. 
+This could come in handy.
+
+## Uplink
+
+There's a Huawei E3372 providing LTE uplink. 
+It's easy to read its status; there are for example unofficial [Go](https://github.com/knq/hilink) and [Python](https://github.com/arska/e3372) libraries for it.
+
 ## Cameras
 
 The van will have a rear view back-up camera, a dashcam and a third camera pointed at the driver’s seat. I’m still figuring out what hardware and software to use.
@@ -20,6 +32,7 @@ The van will have a rear view back-up camera, a dashcam and a third camera point
 * [article about RasPi video capture](https://www.arrow.com/en/research-and-events/articles/pi-bandwidth-with-video)
 * [SE question about live streaming from a Pi](https://raspberrypi.stackexchange.com/questions/42881/how-to-stream-low-latency-video-from-the-rpi-to-a-web-browser-in-realtime)
 * [German shop that has interesting car cam related hardware](http://www.mobilline24.de/)
+* [a (German) primer on USB power delivery](https://www.elektronik-kompendium.de/sites/com/1809251.htm)
 
 ## Relays
 

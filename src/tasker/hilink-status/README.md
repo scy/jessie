@@ -11,6 +11,8 @@ The notification's icon also changes based on the type and quality of network av
 
 Additionally, whenever the type of connection changes, it will be announced by speech.
 
+![Notification](notification.png)
+
 ## Why I need it
 
 I live and work in a van. 

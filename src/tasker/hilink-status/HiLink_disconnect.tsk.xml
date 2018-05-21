@@ -1,0 +1,32 @@
+<TaskerData sr="" dvi="1" tv="5.1m">
+	<Task sr="task4">
+		<cdate>1526857472378</cdate>
+		<edate>1526898627029</edate>
+		<id>4</id>
+		<nme>HiLink disconnect</nme>
+		<pri>1006</pri>
+		<Action sr="act0" ve="7">
+			<code>549</code>
+			<Str sr="arg0" ve="3">%HILINK_LAST_TYPE</Str>
+			<Int sr="arg1" val="0"/>
+			<Int sr="arg2" val="0"/>
+		</Action>
+		<Action sr="act1" ve="7">
+			<code>549</code>
+			<Str sr="arg0" ve="3">%HILINK_LAST_DESCR</Str>
+			<Int sr="arg1" val="0"/>
+			<Int sr="arg2" val="0"/>
+		</Action>
+		<Action sr="act2" ve="7">
+			<code>549</code>
+			<Str sr="arg0" ve="3">%HILINK_POLL</Str>
+			<Int sr="arg1" val="0"/>
+			<Int sr="arg2" val="0"/>
+		</Action>
+		<Action sr="act3" ve="7">
+			<code>779</code>
+			<Str sr="arg0" ve="3">HiLink Status</Str>
+			<Int sr="arg1" val="0"/>
+		</Action>
+	</Task>
+</TaskerData>

@@ -1,7 +1,12 @@
-date,title,price
-2018-05-19,2× Euro Container 5l,EUR 7.90
-2018-05-19,Euro Container 20l,EUR 5.25
-2018-05-19,Euro Container 25l,EUR 8.50
-2018-05-19,Euro Container 39l,EUR 13.50
-2018-05-19,Euro Container 60l,EUR 10.25
-2018-05-19,Sponge Scourers,EUR 1.00
+date,item,sku,price
+2018-05-05,blade fuse adapter with tap,Conrad 841115 / 4016138721430,EUR 7.49
+2018-05-05,Wentronic blade fuse set 7.5A,Conrad 841901 / 4040849203817,EUR 1.39
+2018-05-05,Hama multifunctional parking disk,Conrad 841948 / 4007249839589,EUR 3.99
+2018-05-05,EN 471 high-vis vest orange,Conrad 857656 / 4028985005076,EUR 4.89
+2018-05-05,cable ties 100×2.5mm black 100-pack,Conrad 539856 / 4031026240978,EUR 3.49
+2018-05-19,2× Euro Container 5l,,EUR 7.90
+2018-05-19,Euro Container 20l,,EUR 5.25
+2018-05-19,Euro Container 25l,,EUR 8.50
+2018-05-19,Euro Container 39l,,EUR 13.50
+2018-05-19,Euro Container 60l,,EUR 10.25
+2018-05-19,Sponge Scourers,,EUR 1.00

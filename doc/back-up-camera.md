@@ -20,7 +20,7 @@ The camera is switched on or off by plugging or unplugging a barrel connector ne
 This has no effect on the USB capture though: 
 If the camera's power is unplugged, the capture card will simply return a blank image.
 
-The particular capture card I've bought from Conrad has a loose connection though: 
+The particular capture card I've bought from Conrad (Basetech BR116) has a loose connection though: 
 When hitting a pothole, it'll disconnect and not come back until you re-plug the hub and restart the app. 
 It also doesn't work about 30% of the time when plugging it in, and it's really sensitive to movement. 
 And since the symptoms are way worse when it's in its plastic enclosure, I've removed that and now have the naked circuit board hanging around.

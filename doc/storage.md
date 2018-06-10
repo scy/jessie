@@ -30,5 +30,6 @@ They are
 ## Load securing
 
 Currently, the ~5 euro boxes I have are simply placed on non-slip mats in my van's cargo area. 
+[This tweet](https://twitter.com/timwohnt/status/1005931390083522560) has a photo. 
 In the future, I want to secure them with airline lashing tracks. 
 These will be attached to the floor/wall/ceiling of the cargo space using insert nuts.

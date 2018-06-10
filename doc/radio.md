@@ -18,6 +18,8 @@ I'm using a Sirio Turbo 800 antenna for CB radio.
 It does the job. 
 The screws in its base are not stainless, but on the other hand this told me very vividly that the rubber seal isn't working too well.
 
+![mount and rusty antenna](img/IMG_20180516_182524.jpg)
+
 ## CB radio
 
 I'm using a President Grant II Premium station, mainly because of the sheer amount of features. 

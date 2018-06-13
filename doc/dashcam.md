@@ -20,3 +20,11 @@ ffmpeg -f v4l2 -framerate 25 -video_size 640x480 -i /dev/video0 -c:v copy -t 00:
 ```
 
 (Slightly modified based on my notes, not tested.)
+
+## Other inspiration
+
+There's a [Raspberry Pi dashcam](http://pidashcam.blogspot.com/) project with [some](https://www.youtube.com/watch?v=hCbZsu68zZU) [YouTube](https://www.youtube.com/watch?v=eTZRGEJeFsU) [videos](https://www.youtube.com/watch?v=lExnMSv83ec).
+
+Also, somebody else is building a complete "[Raspberry Pi black box](http://www.blackboxpi.com/)".
+
+By the way, ffmpeg can do text overlays pretty easy using [`drawtext`](https://ffmpeg.org/ffmpeg-filters.html#drawtext-1) with `textfile` and the `reload` flag.

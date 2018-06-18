@@ -35,3 +35,13 @@ The Albrecht AE 5890 is a good alternative, and I don't quite remember why I've 
 ## Amateur radio
 
 I haven't really started working on my ham license yet, so there's currently no ham station set up in the vehicle.
+
+## PMR446 radio
+
+For additional fun, I've ordered two [Motorola TLKR T92 H2O](https://www.motorolasolutions.com/de_xc/products/consumer-two-way-radios/t92.html) radios. 
+They seem to have good build quality and range. 
+Also, they have all kinds of gimmicks: 
+Flashlight (also in red), emergency whistle, USB charging input. 
+Oh, and they are waterproof, they float and the flashlight starts blinking when they come in contact with water.
+
+The FRS/GMRS equivalent in the United States and Canada is the [Motorola Talkabout T600 H2O](https://www.motorolasolutions.com/en_us/products/two-way-radios/consumer-two-way-radios/talkabout-t600-series.html).

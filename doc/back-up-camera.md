@@ -11,6 +11,13 @@ An ugly hack that works half of the time.
 
 _[This image](https://pbs.twimg.com/media/DcXTzYQXcAAc-eb.jpg:large) will have to suffice to give you an impression for the moment, I'll provide a better one soon._
 
+At the back of the van, there's a [Carmedien Rear Light Back-up Camera](https://www.bewado.de/carmedien-rueckfahrkamera-fuer-ducato-jumper-boxer.html). 
+It's mounted around the original back light. 
+(Cameras that replace the original back light are usually illegal, at least in Germany.) 
+The image quality is kinda crappy, but that's the case with all of the analog cameras. 
+Its angle of view is very sufficient, you can definitely see where you're going. 
+The infrared illumination at night alone is sometimes too weak, but in combination with the white reversing light of the van it's okay.
+
 I have a Huawei MediaPad M5 8" mounted in the front. 
 It's connected via USB-C to one of these USB hubs that have a USB-C socket for receiving additional power (to forward it). 
 Connected to that hub is a USB video capture dongle. 

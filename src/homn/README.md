@@ -98,45 +98,74 @@ When you remove some of its plastic housing, it fits nicely on the Mega, even th
 These are the pins of the Mega's port and how they map to the cable and the peripherals connected to it. 
 It's ordered by the wires on the cable (the _color_ column).
 
-| Pin | Type | Internal | Label | Color  | Relay | Connected To         |
-| --- | ---- | -------- | ----- | ------ | ----- | -------------------- |
-|     |      |          |       | black  |       |                      |
-|     |      |          |       | white  |       |                      |
-|     |      |          | 5V    | gray   |       |                      |
-|     |      |          | 5V    | purple |       |                      |
-| PA1 | Out  | 0,1      | 23    | blue   | 1-2   | drinking water pump  |
-| PA0 | Out  | 0,0      | 22    | green  | 1-1   | main water pump      |
-| PA3 | Out  | 0,3      | 25    | yellow | 1-4   |                      |
-| PA2 | Out  | 0,2      | 24    | orange | 1-3   |                      |
-| PA5 | Out  | 0,5      | 27    | red    | 2-2   |                      |
-| PA4 | Out  | 0,4      | 26    | brown  | 2-1   |                      |
-| PA7 | Out  | 0,7      | 29    | black  | 2-4   |                      |
-| PA6 | Out  | 0,6      | 28    | white  | 2-3   |                      |
-| PC6 | Out  | 1,6      | 31    | gray   | 4-3   |                      |
-| PC7 | Out  | 1,7      | 30    | purple | 4-4   |                      |
-| PC4 | Out  | 1,4      | 33    | blue   | 4-1   |                      |
-| PC5 | Out  | 1,5      | 32    | green  | 4-2   |                      |
-| PC2 | Out  | 1,2      | 35    | yellow | 3-3   |                      |
-| PC3 | Out  | 1,3      | 34    | orange | 3-4   |                      |
-| PC0 | Out  | 1,0      | 37    | red    | 3-1   |                      |
-| PC1 | Out  | 1,1      | 36    | brown  | 3-2   |                      |
-| PG2 | In   | 2,2      | 39    | black  |       | sink (foot switch)   |
-| PD7 |      |          | 38    | white  |       |                      |
-| PG0 | In   | 2,0      | 41    | gray   |       | sink (faucet)        |
-| PG1 | In   | 2,1      | 40    | purple |       | shower               |
-| PL6 | Out  | 2,6      | 43    | blue   | 6-3   |                      |
-| PL7 | Out  | 2,7      | 42    | green  | 6-4   |                      |
-| PL4 | Out  | 2,4      | 45    | yellow | 6-1   |                      |
-| PL5 | Out  | 2,5      | 44    | orange | 6-2   |                      |
-| PL2 | Out  | 2,2      | 47    | red    | 5-3   |                      |
-| PL3 | Out  | 2,3      | 46    | brown  | 5-4   |                      |
-| PL0 | Out  | 2,0      | 49    | black  | 5-1   |                      |
-| PL1 | Out  | 2,1      | 48    | white  | 5-2   |                      |
-| PB2 | In   | 1,2      | 51    | gray   |       | free input           |
-| PB3 | In   | 1,3      | 50    | purple |       | free input           |
-| PB0 | In   | 1,0      | 53    | blue   |       | free input           |
-| PB1 | In   | 1,1      | 52    | green  |       | free input           |
-|     |      |          | GND   | yellow |       |                      |
-|     |      |          | GND   | orange |       |                      |
-|     |      |          |       | red    |       |                      |
-|     |      |          |       | brown  |       |                      |
+| Pin | Type | Internal | Label | Color  | Relay | Connected To                       |
+| --- | ---- | -------- | ----- | ------ | ----- | ---------------------------------- |
+|     |      |          |       | black  |       |                                    |
+|     |      |          |       | white  |       |                                    |
+|     |      |          | 5V    | gray   |       |                                    |
+|     |      |          | 5V    | purple |       |                                    |
+| PA1 | Out  | 0,1      | 23    | blue   | 1-2   | drinking water pump                |
+| PA0 | Out  | 0,0      | 22    | green  | 1-1   | **planned:** main water pump       |
+| PA3 | Out  | 0,3      | 25    | yellow | 1-4   |                                    |
+| PA2 | Out  | 0,2      | 24    | orange | 1-3   |                                    |
+| PA5 | Out  | 0,5      | 27    | red    | 2-2   | 2: foot light bed                  |
+| PA4 | Out  | 0,4      | 26    | brown  | 2-1   | 1: ceiling light back              |
+| PA7 | Out  | 0,7      | 29    | black  | 2-4   | 4: kitchen light                   |
+| PA6 | Out  | 0,6      | 28    | white  | 2-3   | 3: ceiling mood light kitchen/desk |
+| PC6 | Out  | 1,6      | 31    | gray   | 4-3   | 7: ceiling mood light bed          |
+| PC7 | Out  | 1,7      | 30    | purple | 4-4   | 8: ceiling light front             |
+| PC4 | Out  | 1,4      | 33    | blue   | 4-1   | 5: head light bed                  |
+| PC5 | Out  | 1,5      | 32    | green  | 4-2   | 6: bathroom light                  |
+| PC2 | Out  | 1,2      | 35    | yellow | 3-3   |                                    |
+| PC3 | Out  | 1,3      | 34    | orange | 3-4   |                                    |
+| PC0 | Out  | 1,0      | 37    | red    | 3-1   |                                    |
+| PC1 | Out  | 1,1      | 36    | brown  | 3-2   |                                    |
+| PG2 | In   | 2,2      | 39    | black  |       | see *Input Ribbon Cable*           |
+| PD7 |      |          | 38    | white  |       |                                    |
+| PG0 | In   | 2,0      | 41    | gray   |       | see *Input Ribbon Cable*           |
+| PG1 | In   | 2,1      | 40    | purple |       | see *Input Ribbon Cable*           |
+| PL6 | Out  | 2,6      | 43    | blue   | 6-3   |                                    |
+| PL7 | Out  | 2,7      | 42    | green  | 6-4   |                                    |
+| PL4 | Out  | 2,4      | 45    | yellow | 6-1   |                                    |
+| PL5 | Out  | 2,5      | 44    | orange | 6-2   |                                    |
+| PL2 | Out  | 2,2      | 47    | red    | 5-3   | 11: wall light (bathroom door)     |
+| PL3 | Out  | 2,3      | 46    | brown  | 5-4   | 12: step light                     |
+| PL0 | Out  | 2,0      | 49    | black  | 5-1   | 9: desk light                      |
+| PL1 | Out  | 2,1      | 48    | white  | 5-2   | 10: door light                     |
+| PB2 | In   | 1,2      | 51    | gray   |       | see *Input Ribbon Cable*           |
+| PB3 | In   | 1,3      | 50    | purple |       | see *Input Ribbon Cable*           |
+| PB0 | In   | 1,0      | 53    | blue   |       | see *Input Ribbon Cable*           |
+| PB1 | In   | 1,1      | 52    | green  |       | see *Input Ribbon Cable*           |
+|     |      |          | GND   | yellow |       | GND brown (input ribbon cable)     |
+|     |      |          | GND   | orange |       | GND black (input ribbon cable)     |
+|     |      |          |       | red    |       |                                    |
+|     |      |          |       | brown  |       |                                    |
+
+#### Input Ribbon Cable
+
+There's a second box that contains screw terminals for input push buttons and the like. It is connected to the relay box via a 20-wire ribbon cable. Each of the wires corresponds to one screw terminal, with the exception of the first and the last, which both carry ground. The following table lists the connections in the ribbon cable's order.
+
+Some wires of the ribbon cable are directly connected to the Arduino's ports (PK), others connect to the big Arduino cable described in the previous section. For those, the corresponding wire color is listed under *Arduino cable color*. *Label* refers to the Arduino pin labeling, *Button* to the push button numbering of the choc block where the light buttons terminate.
+
+| Pin | Internal | Label        | Color  | Arduino cable color | Button | Connected To (button or pin) | Function                                                  |
+| --- | -------- | ------------ | ------ | ------------------- | ------ | ---------------------------- | --------------------------------------------------------- |
+|     |          | GND          | black  | orange              |        | GND                          |                                                           |
+| PK7 | 0,7      | Analog In 15 | white  | -                   | 8      | bed innermost                | **planned:** toggle between bed head, bed foot, both, off |
+| PK6 | 0,6      | Analog In 14 | gray   | -                   | 7      | bed center                   | ceiling mood bed                                          |
+| PK5 | 0,5      | Analog In 13 | purple | -                   | 6      | bed foot end                 | **planned:** global toggle                                |
+| PK4 | 0,4      | Analog In 12 | blue   | -                   | 5      | desk innermost               | ceiling mood door (**planned:** and step)                 |
+| PK3 | 0,3      | Analog In 11 | green  | -                   | 4      | bathroom                     | bathroom light                                            |
+| PK2 | 0,2      | Analog In 10 | yellow | -                   | 3      | kitchen center               | ceiling back                                              |
+| PK1 | 0,1      | Analog In 9  | orange | -                   | 2      | sliding door                 | **planned:** global toggle                                |
+| PK0 | 0,0      | Analog In 8  | red    | -                   | 1      | desk center                  | ceiling front                                             |
+| PB3 | 1,3      | Digital 50   | brown  | purple              | 12     | desk outermost               | desk light                                                |
+| PB2 | 1,2      | Digital 51   | black  | gray                | 11     | bed outermost                | alarm system                                              |
+| PB1 | 1,1      | Digital 52   | white  | green               | 10     | kitchen innermost            | kitchen light                                             |
+| PB0 | 1,0      | Digital 53   | gray   | blue                | 9      | kitchen outermost            | ceiling mood kitchen/desk (**planned:** and door)         |
+| PB4 | 1,4      | PWM 10       | purple | -                   |        |                              |                                                           |
+| PB5 | 1,5      | PWM 11       | blue   | -                   |        |                              |                                                           |
+| PB6 | 1,6      | PWM 12       | green  | -                   |        |                              |                                                           |
+| PG0 | 2,0      | Digital 41   | yellow | gray                |        | **planned:** sink (faucet)   |                                                           |
+| PG1 | 2,1      | Digital 40   | orange | purple              |        | **planned:** shower          |                                                           |
+| PG2 | 2,2      | Digital 39   | red    | black               |        | sink (foot switch)           | drinking water pump                                       |
+|     |          | GND          | brown  | yellow              |        | GND                          |                                                           |

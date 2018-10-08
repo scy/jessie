@@ -18,5 +18,5 @@ Port 1 is the one closest to the sliding door, port 8 closest to the left wall o
 |    4 | bed                                          |
 |    5 | *not connected*                              |
 |    6 | *not connected*                              |
-|    7 | trunk, right jack                            |
-|    8 | trunk, left jack                             |
+|    7 | trunk, right jack (outgoing connectivity)    |
+|    8 | trunk, left jack (incoming uplink)           |

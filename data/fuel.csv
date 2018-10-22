@@ -1,8 +1,15 @@
-date/time,liters,price,odometer,trip,avg,location
-2018-03-20 10:50,,,,,,Shell Steigerwald Nord
-2018-03-20 14:45,,,,,,Oil! Eschersheim
-2018-04-22 14:45,42.05,EUR 50.00,1650,,,Avia Engelskirchen
-2018-04-27 18:24,17.02,EUR 25.00,2032,382,10.6,Shell Hasselberg Ost
-2018-05-01 15:19,42.12,EUR 50.50,2183,,10.6,Esso Autohof Rhüden
-2018-05-08 00:05,105.42,EUR 125.34,2681,498,10.9,Jet Frankfurt Borsigallee
-2018-05-24 14:20,93.14,EUR 120.99,3619,938,10.1,E-Center Hof
+date/time,liters,price,odometer,trip,avg cons,avg spd,duration,location
+2018-03-20 10:50,,,,,,,,Shell Steigerwald Nord
+2018-03-20 14:45,,,,,,,,Oil! Eschersheim
+2018-04-22 14:45,42.05,EUR 50.00,1650,,,,,Avia Engelskirchen
+2018-04-27 18:24,17.02,EUR 25.00,2032,382,10.6,,,Shell Hasselberg Ost
+2018-05-01 15:19,42.12,EUR 50.50,2183,,10.6,,,Esso Autohof Rhüden
+2018-05-08 00:05,105.42,EUR 125.34,2681,498,10.9,,,Jet Frankfurt Borsigallee
+2018-05-24 14:20,93.14,EUR 120.99,3619,938,10.1,,,E-Center Hof
+2018-06-26 16:32,100.32,EUR 127.31,4710,1091,9.5,,,Aral Mannheim Brandenburger Str.
+2018-08-05 17:59,,,5699,989,10.0,52,,Aral Braunschweig Hansestr.
+2018-08-07 20:24,,,6236,537,9.2,73,,Aral Westend-Nord
+2018-09-08 13:46,69.02,EUR 100.01,7069,834.1,10.5,55,,Shell Mittenwald
+2018-09-19 12:29,76.1,EUR 100.00,7699,630.5,10.3,47,13:12,OMV Koper
+2018-10-03 15:10,57.21,EUR 75.00,8508,809,10.4,50,16:00,OMV Koper
+2018-10-07 16:45,73.94,EUR 92.72,8935,426.3,9.6,69,6:09,Jet Hallein

@@ -1,0 +1,24 @@
+network:
+
+  # Which connection type is currently used for uplinking to the internet?
+  uplink: cellular # or `wifi`, `ethernet`, `none`
+
+  # Information about the cellular data connection.
+  # This is present as long as the modem is connected, regardless of what's used for the uplink.
+  cellular:
+    quality: 0.8 # signal strength from 0 to 1
+    tech: LTE # the exact list of values this can have is not determined yet
+    operator: Vodafone # whatever the modem says
+
+  # Information about third-party WiFi networks we are or could be connected to.
+  wifi:
+    uplink: # present if `network.uplink` is `wifi`
+      ssid: Starbucks # the network we are (or are trying to be) connected to
+      associated: true # whether we're actually connected to this AP
+      quality: 0.63 # signal strength from 0 to 1
+    scan: # visible networks in the vicinity
+      refreshed: 2018-09-29T10:52:37Z # when was this list last updated?
+      networks: # a list of networks and their properties
+        - ssid: Starbucks
+          quality: 0.63 # maximum of all the APs with the same SSID
+          open: true # whether this network requires a password

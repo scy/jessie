@@ -64,7 +64,7 @@ Sounds good, right?
 Well, yeah, but apparently nobody uses these.
 [According to German community site mikrocontroller.net](https://www.mikrocontroller.net/topic/348698), this is because the CPU is outdated and there's not a lot of development tools (or libraries!) available.
 
-## ES32
+## ESP32
 
 So I revisited the ESP8266 modules.
 There are a lot of them, for example [Adafruit's Feather HUZZAH](https://www.adafruit.com/product/2821) or the [Wemos D1 mini](https://wiki.wemos.cc/products:d1:d1_mini).

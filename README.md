@@ -1,6 +1,6 @@
 # Jessie
 
-In 2018, [@scy](https://github.com/scy) will move into a custom-built Fiat Ducator campervan and live in it.
+In 2018, [@scy](https://github.com/scy) will move into a custom-built Fiat Ducato campervan (named "Jessie" after [the Joshua Kadison song](https://www.youtube.com/watch?v=zHIHipJK_Pg)) and live in it.
 This repository consists of documentation about the van and its systems, about plans that I've made and plans that I've already rejected, but it also contains software that’s used for controlling various parts of the van.
 
 You can also check out [my (German) YouTube channel](https://www.youtube.com/c/timwohnt%C3%BCberall).

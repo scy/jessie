@@ -9,6 +9,8 @@ An ugly hack that works half of the time.
 
 ## Current setup
 
+**This section is a bit outdated.**
+
 _[This image](https://pbs.twimg.com/media/DcXTzYQXcAAc-eb.jpg:large) will have to suffice to give you an impression for the moment, I'll provide a better one soon._
 
 At the back of the van, there's a [Carmedien Rear Light Back-up Camera](https://www.bewado.de/carmedien-rueckfahrkamera-fuer-ducato-jumper-boxer.html). 

@@ -13,4 +13,21 @@ date/time,liters,price,odometer,trip,avg cons,avg spd,duration,location
 2018-09-19 12:29,76.1,EUR 100.00,7699,630.5,10.3,47,13:12,OMV Koper
 2018-10-03 15:10,57.21,EUR 75.00,8508,809,10.4,50,16:00,OMV Koper
 2018-10-07 16:45,73.94,EUR 92.72,8935,426.3,9.6,69,6:09,Jet Hallein
+2018-11-02 18:42,,,9702,766.7,10.4,66,11:36,Esso ??? Frankfurt
+2018-11-16 10:54,54.40,EUR 79.37,10205,503.6,9.6,77,6:28,Roth Mühlwiese Gießen
+2018-11-19 20:22,99.98,EUR 128.87,10707,501.4,9.6,72,6:57,Sprint Körnerstr. Berlin
+2018-12-22 12:24,24.21,EUR 30.00,11481,774.7,9.6,62,12:23,Jet Steinacker Niddatal
+2018-12-26 07:15,45.49,EUR 60.00,11699,218.8,10.7,54,4:00,Esso Stresemannallee Frankfurt
+2018-12-26 15:31,83.50,EUR 97.61,12099,400.1,9.2,84,4:44,Star Delitzscher Str. Leipzig
+2019-01-14 19:27,40.36,EUR 50.00,12841,741.9,10.6,68,10:50,Aral Brandenburger Str. Mannheim
+2019-02-01 21:24,67.86,EUR 80.01,13228,386.8,9.2,68,5:40,Jet Ostfeldstr. Essen
+2019-03-18 11:02,39.40,EUR 50.00,13865,637.1,10.3,72,8:49,Shell Landstr. Altforweiler
+2019-03-22 12:58,39.40,EUR 50.00,14305,439.9,9.4,66,6:37,Rosis Autohof Bad Hersfeld
+2019-03-25 16:31,108.06,EUR 127.40,14712,406.7,10.6,80,5:02,Total Bautzner Str. Dresden
+2019-03-29 16:22,6.29,EUR 7.73,14925,213.3,11.4,42,4:59,Shell Sachsenallee Kesselsdorf
+2019-03-30 07:43,47.82,EUR 59.73,15197,271.9,9.5,79,3:24,Roth Am Marktrasen Krauthausen
+2019-04-04 14:18,47.33,EUR 56.57,15636,439.3,10.3,79,5:33,Jet Hagener Str. Gevelsberg
+2019-04-16 23:15,101.65,EUR 123.91,16702,1065.7,9.3,71,14:58,Total Stockumer Str. Dortmund
+2019-04-26 15:53,29.87,EUR 37.01,16982,279.9,10.5,51,5:26,Aral Stockumer Str. Dortmund
 2019-05-30 00:04,12.75,EUR 20.00,,917.3,9.8,61,14:53,Aral Pfungstadt West
+2019-06-02 19:39,38.79,EUR 50.00,18031,131.5,9.8,65,2:01,Esso Autohof Karlsdorf

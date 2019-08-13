@@ -31,3 +31,7 @@ date/time,liters,price,odometer,trip,avg cons,avg spd,duration,location
 2019-04-26 15:53,29.87,EUR 37.01,16982,279.9,10.5,51,5:26,Aral Stockumer Str. Dortmund
 2019-05-30 00:04,12.75,EUR 20.00,,917.3,9.8,61,14:53,Aral Pfungstadt West
 2019-06-02 19:39,38.79,EUR 50.00,18031,131.5,9.8,65,2:01,Esso Autohof Karlsdorf
+2019-07-22 18:17,42.05,EUR 50.00,18432,401.3,9.7,47,8:31,Shell Westerbachstr. Frankfurt
+2019-07-24 18:00,,,18912,480.3,9.5,,6:40,Avia Heede
+2019-08-04 18:05,40.36,50.01,19283,370.6,9.7,50,7:18,Star Lotte
+2019-08-06 17:44,,,19731,447.8,9.5,69,6:24,SB-Tank Waldstr. Mannheim

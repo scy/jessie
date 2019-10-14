@@ -1,20 +1,36 @@
 # Sensors
 
-I am planning to deploy a number of sensors (mostly temperature) in the van.
-Currently, I have not decided on a technology.
-This page lists the possible candidates and their pros and cons.
+## Addresses
 
-## The hub
+| address             | position                  |
+|---------------------|---------------------------|
+| `4C:65:A8:DC:06:78` | cockpit                   |
+| `4C:65:A8:DC:29:07` | food storage over kitchen |
+| `4C:65:A8:DC:1C:2C` | bathroom                  |
+| `4C:65:A8:DC:30:A6` | bed                       |
+| HMS100T `7903`      | below water tank          |
+| HMS100TF `84e4`     | storage over front seats  |
+| HMS100TF `3692`     | underfloor                |
+| HMS100TF `b640`     | heater drain valve        |
+
+I have deployed a number of sensors (mostly temperature) in the van.
+
+## Evaluation
+
+Before I decided on which technologies to use, this page was used to note down possible candidates and their pros and cons.
+I'm keeping that content around for reference.
+
+### The hub
 
 As far as I'm concerned, the sensor data can end up either on the always-running Raspberry Pi above the front seats, or on the (also always-running) Arduino Mega behind the driver's seat.
 I haven't yet decided on a software suite to use, but [Home Assistant](https://www.home-assistant.io/) seems to be quite popular.
 
-## Wired sensors
+### Wired sensors
 
 Simply attaching a DHT22 sensor to one end of a long wire and then pulling that wire through the van would possibly be an option.
 However, since these sensors have no security impact and since I don't want to pull a wire from the front of the car to the back for aesthetic reasons (and because it's a lot of work), I don't consider this option.
 
-## Power consumption
+### Power consumption
 
 So the sensors need to be wireless.
 And even though getting some kind of 12V power to each of the sensors _might_ be easier than a data cable, it's still probably a hassle.
@@ -23,7 +39,7 @@ Also, the van itself doesn't have unlimited power to supply them either.
 Which means the sensors need to run on batteries.
 And of course I don't want to replace or recharge the batteries every week.
 
-## Espressif-based systems
+### Espressif-based systems
 
 When googling _"inexpensive wireless temperature sensor"_, the most interesting result was a Gearbest page with a [bundle consisting of an ESP8266 module and a matching DHT11 module called ESP-01S DHT11](https://www.gearbest.com/other-accessories/pp_1176241.html).
 It looked compact and interesting, and it even could run on 12V power.
@@ -53,7 +69,7 @@ Well, it certainly is inconvenient.)
 
 What else is there?
 
-## Non-WiFi 2.4 GHz devices
+### Non-WiFi 2.4 GHz devices
 
 One of the articles from my original Google search was [Mapping Household Temperature Flow with Cheap Sensors](https://www.hackster.io/humblehacker/mapping-household-temperature-flow-with-cheap-sensors-6a36c3), and it mentioned the [nRF24L01](https://www.nordicsemi.com/eng/Products/2.4GHz-RF/nRF24L01) line of RF modules.
 These are supposedly low-power, but since they don't access WiFi directly, they need some kind of a gateway.
@@ -64,7 +80,7 @@ Sounds good, right?
 Well, yeah, but apparently nobody uses these.
 [According to German community site mikrocontroller.net](https://www.mikrocontroller.net/topic/348698), this is because the CPU is outdated and there's not a lot of development tools (or libraries!) available.
 
-## ESP32
+### ESP32
 
 So I revisited the ESP8266 modules.
 There are a lot of them, for example [Adafruit's Feather HUZZAH](https://www.adafruit.com/product/2821) or the [Wemos D1 mini](https://wiki.wemos.cc/products:d1:d1_mini).
@@ -80,7 +96,7 @@ I also found a video about [powering the LOLIN32 using 3.3 V](https://youtu.be/
 
 None of these boards were available to me short-term (same week) though, and they are about 15 € each, so I kept looking for alternatives.
 
-## Xiaomi
+### Xiaomi
 
 A suggestion I got on Twitter was to use cheap Xiaomi Aqara ZigBee temperature sensor in combination with a custom ZigBee receiver instead of Xiaomi's original smart home hub.
 There's a German [article](https://forum.fhem.de/index.php?topic=84790.0) and [video](https://youtu.be/F89oYY29rJ8) explaining the procedure.
@@ -96,7 +112,7 @@ According to quite some reports, deCONZ isn't the best or most stable software, 
 They are working to fix it, but at least at the time of writing it seems to require an X server (i.e. no headless installs) and root access to work.
 As long as deCONZ isn't improved, I'd prefer to stay away from this solution.
 
-## FS20
+### FS20
 
 My temporary workaround will be to resurrect some [FS20](https://www.elv.de/fs20-funkschaltsystem.html) (German link) hardware that I still have.
 It's an [SRD860](https://en.wikipedia.org/wiki/Short-range_device#SRD860) based "home automation" system from back in the days.
@@ -106,7 +122,7 @@ You need a [CUL](https://wiki.fhem.de/wiki/CUL) (German link), basically a CC110
 Thankfully, I have bought a FHZ 1000 PC interface years ago, and apparently there are ways to integrate this into Home Assistant, for example [Luzifer/culmqtt](https://github.com/Luzifer/culmqtt).
 I'll look into it.
 
-## Honorary mentions
+### Honorary mentions
 
 * [How to Run Your ESP8266 for Years on a Battery](https://openhomeautomation.net/esp8266-battery) provides a good overview on what has to be done to tune the ESP for power saving. It recommends the [SparkFun ESP8266 Thing](https://www.sparkfun.com/products/13231), because it has little features that you don't want anyway.
 * [Matthias mentioned](https://twitter.com/mattsches/status/1058068949584265216) his [ESP32 based sensor](https://blog.sperrobjekt.de/content/1000514-BME680-Sensor-auf-ESP32-mit-esphomelib-konfigurieren.html) (German), but the most interesting part of that article for me was that he used [esphomeyaml](https://esphomelib.com/esphomeyaml/index.html) to automatically generate firmware for his sensors. Write a YAML file and be done. Nice!

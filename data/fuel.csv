@@ -34,7 +34,7 @@ date/time,liters,price,odometer,trip,avg cons,avg spd,duration,location
 2019-07-22 18:17,42.05,EUR 50.00,18432,401.3,9.7,47,8:31,Shell Westerbachstr. Frankfurt
 2019-07-24 18:00,41.36,EUR 50.00,18912,480.3,9.5,,6:40,Avia Heede
 2019-08-04 18:05,40.36,EUR 50.01,19283,370.6,9.7,50,7:18,Star Lotte
-2019-08-06 17:44,,,19731,447.8,9.5,69,6:24,SB-Tank Waldstr. Mannheim
+2019-08-06 17:44,42.05,EUR 50.00,19731,447.8,9.5,69,6:24,SB-Tank Waldstr. Mannheim
 2019-08-17 10:01,39.09,EUR 50.00,20157,426.3,10.0,65,6:29,Aral Jena-Lobeda
 2019-08-26 16:03,30.00,EUR 35.07,20514,357.4,9.3,61,5:47,Elan Zehdenick
 2019-09-04 12:46,41.36,EUR 50.00,20735,220.3,10.8,34,6:28,Aral Rüblingsheide

@@ -40,10 +40,10 @@ date/time,liters,price,odometer,trip,avg cons,avg spd,duration,location
 2019-09-04 12:46,41.36,EUR 50.00,20735,220.3,10.8,34,6:28,Aral Rüblingsheide
 2019-09-06 10:58,30.79,EUR 40.00,21209,474.1,10.7,65,7:16,Esso Linthe
 2019-09-16 17:51,41.10,EUR 50.10,21758,549.3,9.5,72,7:33,Shell Nieder-Wöllstadt
-2019-10-02 18:57,20.68,EUR 25.00,,,,,,Aral Friedberger Landstr. Frankfurt
-2019-10-28 10:27,42.05,EUR 50.00,,,,,,Schneider Dieburg
-2019-11-08 10:38,40.36,EUR 50.01,,,,,,Hessol Bad Vilbel Massenheim
-2019-11-17 10:57,40.68,EUR 50.00,,,,,,SB Mannheimer Str. Lampertheim
+2019-10-02 18:57,20.68,EUR 25.00,21980,221.7,9.9,59,3:45,Aral Friedberger Landstr. Frankfurt
+2019-10-28 10:27,42.05,EUR 50.00,22266,286.4,10.6,55,5:10,Schneider Dieburg
+2019-11-08 10:38,40.36,EUR 50.01,22519,253.4,11.9,40,6:11,Hessol Bad Vilbel Massenheim
+2019-11-17 10:57,40.68,EUR 50.00,22734,214.4,11.2,52,4:03,SB Mannheimer Str. Lampertheim
 2019-12-22 17:53,37.91,EUR 50.00,22975,240.8,11.2,42,5:41,Aral Darmstädter Landstr. Frankfurt
 2019-12-26 17:43,39.40,EUR 50.00,23321,346.1,11.6,59,5:51,Aral Marburger Str. Homberg
 2019-12-26 22:17,50.46,EUR 60.00,23642,321.1,9.9,82,3:53,Globus Messe Leipzig

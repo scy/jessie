@@ -6,6 +6,7 @@
 |---------------------|---------------------------|
 | `4C:65:A8:DC:06:78` | cockpit                   |
 | `4C:65:A8:DC:29:07` | food storage over kitchen |
+| `4C:65:A8:DC:1B:6A` | desk                      |
 | `4C:65:A8:DC:1C:2C` | bathroom                  |
 | `4C:65:A8:DC:30:A6` | bed                       |
 | HMS100T `7903`      | below water tank          |

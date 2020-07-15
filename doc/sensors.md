@@ -9,6 +9,11 @@
 | `4C:65:A8:DC:1B:6A` | desk                      |
 | `4C:65:A8:DC:1C:2C` | bathroom                  |
 | `4C:65:A8:DC:30:A6` | bed                       |
+| `58:2D:34:3B:24:21` | storage below kitchen     |
+| `58:2D:34:3B:24:29` | storage over cockpit      |
+| `58:2D:34:3B:25:53` | heater safety valve       |
+| `58:2D:34:3B:27:9C` | water tank                |
+| `58:2D:34:3B:28:8E` | fridge (experimental)     |
 | HMS100T `7903`      | below water tank          |
 | HMS100TF `84e4`     | storage over front seats  |
 | HMS100TF `3692`     | underfloor                |

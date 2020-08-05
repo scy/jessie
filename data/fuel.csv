@@ -13,7 +13,7 @@ date/time,liters,price,odometer,trip,avg cons,avg spd,duration,location
 2018-09-19 12:29,76.1,EUR 100.00,7699,630.5,10.3,47,13:12,OMV Koper
 2018-10-03 15:10,57.21,EUR 75.00,8508,809,10.4,50,16:00,OMV Koper
 2018-10-07 16:45,73.94,EUR 92.72,8935,426.3,9.6,69,6:09,Jet Hallein
-2018-11-02 18:42,,,9702,766.7,10.4,66,11:36,Esso ??? Frankfurt
+2018-11-02 18:42,34.04,EUR 50.00,9702,766.7,10.4,66,11:36,Esso Ludwig-Landmann-Str. Frankfurt
 2018-11-16 10:54,54.40,EUR 79.37,10205,503.6,9.6,77,6:28,Roth Mühlwiese Gießen
 2018-11-19 20:22,99.98,EUR 128.87,10707,501.4,9.6,72,6:57,Sprint Körnerstr. Berlin
 2018-12-22 12:24,24.21,EUR 30.00,11481,774.7,9.6,62,12:23,Jet Steinacker Niddatal

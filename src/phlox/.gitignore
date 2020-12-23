@@ -1,0 +1,11 @@
+# .env files should be local to a single development environment. If you commit
+# them to the repository, you're usually doing something wrong.
+/.env
+
+# Build output directory. If you change $PERTHENSIS_BUILD_OUT, you should
+# update this value accordingly.
+/build/
+
+# MicroPython firmware binary directory. If you change
+# $PERTHENSIS_MICROPYTHON_DIR, you should update this value accordingly.
+/micropython/

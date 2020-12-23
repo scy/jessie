@@ -1,0 +1,18 @@
+[[source]]
+name = "pypi"
+url = "https://pypi.org/simple"
+verify_ssl = true
+
+[dev-packages]
+
+[packages]
+esptool = "*"
+rshell = "*"
+
+# Add command aliases to be called using `pipenv run NAME` here.
+# Additional parameters will be appended to the command line.
+[scripts]
+b = "./build.sh"
+r = "./build.sh -r"
+s = "./build.sh -bd"
+sr = "./build.sh -bdr"

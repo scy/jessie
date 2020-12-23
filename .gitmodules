@@ -1,3 +1,7 @@
 [submodule "src/homn/thirdparty/optiboot"]
 	path = src/homn/thirdparty/optiboot
 	url = https://github.com/Optiboot/optiboot.git
+[submodule "src/phlox/lib/perthensis"]
+	path = src/phlox/lib/perthensis
+	url = https://codeberg.org/scy/perthensis.git
+	branch = next

@@ -5,3 +5,7 @@
 	path = src/phlox/lib/perthensis
 	url = https://codeberg.org/scy/perthensis.git
 	branch = next
+[submodule "src/phlox/lib/votonic"]
+	path = src/phlox/lib/votonic
+	url = https://codeberg.org/scy/votonic.git
+	branch = microtonic

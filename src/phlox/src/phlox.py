@@ -1,6 +1,6 @@
 from machine import Pin, Signal
 import microtonic
-from perthensis import Scheduler
+from perthensis import Scheduler, Watchdog
 import time
 
 
@@ -26,6 +26,9 @@ class Phlox:
         sch(self.votronic.read)
 
     def run(self):
+        # Enable watchdog timer.
+        self.sch(Watchdog(60_000).watch)
+
         self.sch.run_forever()
 
 

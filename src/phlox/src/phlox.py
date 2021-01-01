@@ -18,8 +18,12 @@ class Phlox:
                  votronic_de_pin=4, votronic_de_inv=False,
                  votronic_re_pin=2, votronic_re_inv=True):
         # Mount the SD card and open a log file for debugging.
-        os.mount(SDCard(slot=3, sck=14, miso=12, mosi=13, cs=15), '/sd')
-        self.logfile = open('/sd/phlox.log', 'a')
+        self.logfile = None
+        try:
+            os.mount(SDCard(slot=3, sck=14, miso=12, mosi=13, cs=15), '/sd')
+            self.logfile = open('/sd/phlox.log', 'a')
+        except Exception as e:
+            print_exception(e)
         self.log('Phlox initializing...')
 
         # Default sleep state is "enable everything".
@@ -109,8 +113,9 @@ class Phlox:
         now = time.localtime()
         msg = ('{0:04d}-{1:02d}-{2:02d} {3:02d}:{4:02d}:{5:02d}  {6}\n'.format(
             now[0], now[1], now[2], now[3], now[4], now[5], msg))
-        self.logfile.write(msg)
-        self.logfile.flush()
+        if self.logfile:
+            self.logfile.write(msg)
+            self.logfile.flush()
         print(msg[:-1])
 
     def print_log(self):

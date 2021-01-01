@@ -51,6 +51,8 @@ class Phlox:
         sch(self.votronic.read)
 
         # Sleep state background tasks.
+        self.intermittent_report_interval = 5 * 60
+        self.intermittent_run_duration = 3 * 60
         sch(self._pi_controller)
         sch(self._intermittent_reporter)
 
@@ -82,13 +84,17 @@ class Phlox:
             if self.enable_pi == prev:
                 await sch.sleep(1)
                 continue
+            print('Enable Pi was {0}, is now {1}'.format(prev, self.enable_pi))
             # When we're here, desired sleep state has changed.
             prev = self.enable_pi
             if self.enable_pi:
+                self.log('Powering on the Pi')
                 self.pi.power_on()
             else:
+                self.log('Shutting down the Pi')
                 self.pi.shutdown()
                 await sch.sleep(30)
+                self.log('Cutting power')
                 self.pi.power_off()
                 await sch.sleep(2)
 
@@ -96,17 +102,25 @@ class Phlox:
         prev_pi = None
         while True:
             await sch.sleep(1)
-            pi = self.sleepstate & 0x01
+            # Whether the Pi should be on according to sleepstate.
+            pi = not bool(self.sleepstate & 0x01)
             if pi != prev_pi:
-                countdown = 5 * 60
+                # Sleepstate changed, update countdown.
+                countdown = self.intermittent_report_interval
+                print('Sleepstate was {0}, is now {1}'.format(prev_pi, pi))
                 prev_pi = pi
                 continue
             if not pi:
+                # Pi should _not_ be on, according to sleepstate.
                 countdown -= 1
+                print(countdown)
                 if countdown <= 0:
-                    countdown = 5 * 60
+                    countdown = self.intermittent_report_interval
+                    # Enable the Pi, no matter what sleep state says.
                     self.enable_pi = True
-                    sch.sleep(5 * 60)
+                    # Let it run for some time.
+                    await sch.sleep(self.intermittent_run_duration)
+                    # Set it to on or off depending on the sleepstate.
                     self.enable_pi = not bool(self.sleepstate & 0x01)
 
     def log(self, msg):

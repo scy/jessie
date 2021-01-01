@@ -1,8 +1,10 @@
+import json
 import machine
 from machine import Pin, SDCard, Signal
 import microtonic
 import os
-from perthensis import Scheduler, Watchdog
+from perthensis import Scheduler, Watchdog, WLANClient
+from sys import print_exception
 import time
 
 
@@ -40,6 +42,16 @@ class Phlox:
         )
         sch(self.votronic.read)
 
+        # Prepare WLAN.
+        self.wlan = None
+        try:
+            with open('wlan.json') as f:
+                self.wlan = WLANClient(**json.load(f))
+        except Exception as e:
+            print_exception(e)
+        if self.wlan is not None:
+            sch(self.wlan.watch)
+
         self.log('Initialized.')
 
     def log(self, msg):
@@ -66,6 +78,9 @@ class Phlox:
         self.check_powercycle()
         # Enable watchdog timer.
         self.sch(Watchdog(60_000).watch)
+
+        if self.wlan is not None:
+            self.wlan.enable()
 
         self.sch.run_forever()
 

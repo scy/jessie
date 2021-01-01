@@ -9,3 +9,6 @@
 # MicroPython firmware binary directory. If you change
 # $PERTHENSIS_MICROPYTHON_DIR, you should update this value accordingly.
 /micropython/
+
+# Don't commit my WLAN password.
+/src/wlan.json

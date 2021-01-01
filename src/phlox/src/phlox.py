@@ -3,7 +3,7 @@ import machine
 from machine import Pin, SDCard, Signal
 import microtonic
 import os
-from perthensis import Scheduler, Watchdog, WLANClient
+from perthensis import MQTTClient, Scheduler, Watchdog, WLANClient
 from sys import print_exception
 import time
 
@@ -40,17 +40,26 @@ class Phlox:
             Signal(votronic_re_pin, Pin.OUT, invert=votronic_re_inv),
             Signal(votronic_de_pin, Pin.OUT, invert=votronic_de_inv),
         )
+        self.votronic.on_packet = self.votronic_packet
         sch(self.votronic.read)
 
-        # Prepare WLAN.
-        self.wlan = None
+        # Prepare WLAN and MQTT.
+        self.wlan = self.mqtt = None
         try:
             with open('wlan.json') as f:
                 self.wlan = WLANClient(**json.load(f))
         except Exception as e:
             print_exception(e)
+
         if self.wlan is not None:
+            # Add WLAN client to scheduler.
             sch(self.wlan.watch)
+            # Set up MQTT.
+            self.mqtt = MQTTClient(
+                '10.115.106.254', client_id='phlox', keepalive=30)
+            self.mqtt.set_last_will('jessie/phlox/up', '0', True)
+            self.mqtt.on_connect = self.mqtt_connected
+            sch(self.mqtt.watch)
 
         self.log('Initialized.')
 
@@ -73,6 +82,12 @@ class Phlox:
     def truncate_log(self):
         self.logfile.close()
         self.logfile = open('/sd/phlox.log', 'w')
+
+    def mqtt_connected(self, mqtt):
+        self.mqtt.publish('jessie/phlox/up', '1', True)
+
+    def votronic_packet(self, packet):
+        self.mqtt.publish('jessie/' + packet.mqtt_name(), str(packet.value()), True)
 
     def run(self):
         self.check_powercycle()

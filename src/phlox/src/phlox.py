@@ -22,6 +22,9 @@ class Phlox:
         self.logfile = open('/sd/phlox.log', 'a')
         self.log('Phlox initializing...')
 
+        # Default sleep state is "enable everything".
+        self.set_sleepstate(0)
+
         # We're using the Perthensis scheduler for multitasking.
         self.sch = sch = Scheduler()
 
@@ -43,6 +46,10 @@ class Phlox:
         self.votronic.on_packet = self.votronic_packet
         sch(self.votronic.read)
 
+        # Sleep state background tasks.
+        sch(self._pi_controller)
+        sch(self._intermittent_reporter)
+
         # Prepare WLAN and MQTT.
         self.wlan = self.mqtt = None
         try:
@@ -59,9 +66,44 @@ class Phlox:
                 '10.115.106.254', client_id='phlox', keepalive=30)
             self.mqtt.set_last_will('jessie/phlox/up', '0', True)
             self.mqtt.on_connect = self.mqtt_connected
+            self.mqtt.set_callback(self.mqtt_msg)
+            self.mqtt.subscribe('jessie/sleepstate')
             sch(self.mqtt.watch)
 
         self.log('Initialized.')
+
+    async def _pi_controller(self, sch):
+        prev = None
+        while True:
+            if self.enable_pi == prev:
+                await sch.sleep(1)
+                continue
+            # When we're here, desired sleep state has changed.
+            prev = self.enable_pi
+            if self.enable_pi:
+                self.pi.power_on()
+            else:
+                self.pi.shutdown()
+                await sch.sleep(30)
+                self.pi.power_off()
+                await sch.sleep(2)
+
+    async def _intermittent_reporter(self, sch):
+        prev_pi = None
+        while True:
+            await sch.sleep(1)
+            pi = self.sleepstate & 0x01
+            if pi != prev_pi:
+                countdown = 5 * 60
+                prev_pi = pi
+                continue
+            if not pi:
+                countdown -= 1
+                if countdown <= 0:
+                    countdown = 5 * 60
+                    self.enable_pi = True
+                    sch.sleep(5 * 60)
+                    self.enable_pi = not bool(self.sleepstate & 0x01)
 
     def log(self, msg):
         now = time.localtime()
@@ -86,11 +128,18 @@ class Phlox:
     def mqtt_connected(self, mqtt):
         self.mqtt.publish('jessie/phlox/up', '1', True)
 
+    def mqtt_msg(self, topic, msg):
+        if topic == b'jessie/sleepstate':
+            self.set_sleepstate(int(msg))
+
     def votronic_packet(self, packet):
         self.mqtt.publish('jessie/' + packet.mqtt_name(), str(packet.value()), True)
 
+    def set_sleepstate(self, state):
+        self.sleepstate = state
+        self.enable_pi = not bool(state & 0x01)  # Turn Pi off if bit 1 is set
+
     def run(self):
-        self.check_powercycle()
         # Enable watchdog timer.
         self.sch(Watchdog(60_000).watch)
 
@@ -98,49 +147,6 @@ class Phlox:
             self.wlan.enable()
 
         self.sch.run_forever()
-
-    def enable_powercycle(self):
-        with open('/sd/do_powercycle', 'w') as f:
-            pass
-
-    def check_powercycle(self):
-        try:
-            os.remove('/sd/do_powercycle')
-        except OSError:
-            print('Powercycle file does not exist.')
-            return
-        self.sch(self.powercycle_pi)
-
-    async def powercycle_pi(self, sch):
-        try:
-            self.log('Signalling shutdown to Pi.')
-            self.pi.shutdown()
-            for s in range(30):
-                if not self.pi.is_powered():
-                    self.log('Pi powered down after {0}s!'.format(s))
-                    break
-                await sch.sleep_ms(1_000)
-            self.log('Waiting another 10s.')
-            await sch.sleep_ms(10_000)
-            self.log('Pi power state is {0}.'.format(int(self.pi.is_powered())))
-            self.log('Cutting power.')
-            self.pi.power_off()
-            self.log('Waiting 5s.')
-            await sch.sleep_ms(5_000)
-            self.log('Pi power state is {0}.'.format(int(self.pi.is_powered())))
-            self.log('Turning power back on.')
-            self.pi.power_on()
-            for s in range(30):
-                if self.pi.is_powered():
-                    self.log('Pi powered back up after {0}s!'.format(s))
-                    break
-                await sch.sleep_ms(1_000)
-        except Exception as e:
-            try:
-                self.log('Exception: {0}: {1}'.format(e.__class__.__name__, str(e)))
-            except:
-                pass
-            machine.reset()
 
 
 class Pi:

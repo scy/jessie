@@ -197,14 +197,26 @@ class LatchingRelay:
     def __init__(self, set_pin_id, unset_pin_id):
         self.set_pin = Pin(set_pin_id, Pin.OUT, value=0)
         self.unset_pin = Pin(unset_pin_id, Pin.OUT, value=0)
+        self.state = None
 
     def _pulse(self, pin):
         pin.value(1)
         time.sleep_ms(10)
         pin.value(0)
 
+    def is_state_known(self):
+        return self.state is not None
+
+    def is_set(self):
+        return self.state
+
+    def is_unset(self):
+        return None if self.state is None else not self.state
+
     def set(self):
         self._pulse(self.set_pin)
+        self.state = True
 
     def unset(self):
         self._pulse(self.unset_pin)
+        self.state = False

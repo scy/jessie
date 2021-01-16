@@ -12,7 +12,8 @@ class Phlox:
 
     def __init__(self,
                  pi_set_pin=5, pi_unset_pin=33,
-                 pi_status_pin=25, pi_status_inv=False,
+                 pi_powered_pin=25, pi_powered_inv=False,
+                 pi_heartbeat_pin=26,
                  pi_shutdown_pin=27, pi_shutdown_inv=True,
                  votronic_port=2,
                  votronic_de_pin=4, votronic_de_inv=False,
@@ -26,20 +27,22 @@ class Phlox:
             print_exception(e)
         self.log('Phlox initializing...')
 
-        # Default sleep state is "enable everything".
-        self.set_sleepstate(0)
-
         # We're using the Perthensis scheduler for multitasking.
         self.sch = sch = Scheduler()
 
         # Raspberry Pi controller object.
+        # It will automatically switch the Pi on when initializing.
         self.pi = Pi(
-            Signal(pi_status_pin, Pin.IN, invert=pi_status_inv),
+            Signal(pi_powered_pin, Pin.IN, invert=pi_powered_inv),
             # Signal class inverts the constructor value if invert is True.
             Signal(pi_shutdown_pin, Pin.OUT, invert=pi_shutdown_inv, value=0),
+            Signal(pi_heartbeat_pin, Pin.IN, Pin.PULL_DOWN),
             LatchingRelay(pi_set_pin, pi_unset_pin),
+            sch, self.log,
         )
-        self.pi.power_on()  # Power it on when we boot.
+
+        # Default sleep state is "enable everything".
+        self.set_sleepstate(0)
 
         # Initialize Votronic RS485 interface via Arduino MKR 485 shield.
         self.votronic = microtonic.UART(
@@ -49,13 +52,6 @@ class Phlox:
         )
         self.votronic.on_packet = self.votronic_packet
         sch(self.votronic.read)
-
-        # Sleep state background tasks.
-        self.intermittent_report_interval = 120 * 60
-        self.intermittent_run_duration = 10 * 60
-        self.force_pi_on = False
-        sch(self._pi_controller)
-        sch(self._intermittent_reporter)
 
         # Prepare WLAN and MQTT.
         self.wlan = self.mqtt = None
@@ -78,51 +74,6 @@ class Phlox:
             sch(self.mqtt.watch)
 
         self.log('Initialized.')
-
-    async def _pi_controller(self, sch):
-        prev = None
-        while True:
-            requested = self.enable_pi or self.force_pi_on
-            if requested == prev:
-                await sch.sleep(1)
-                continue
-            print('Enable Pi was {0}, is now {1}'.format(prev, requested))
-            # When we're here, desired sleep state has changed.
-            prev = requested
-            if requested:
-                self.log('Powering on the Pi')
-                self.pi.power_on()
-            else:
-                self.log('Shutting down the Pi')
-                self.pi.shutdown()
-                await sch.sleep(30)
-                self.log('Cutting power')
-                self.pi.power_off()
-                await sch.sleep(2)
-
-    async def _intermittent_reporter(self, sch):
-        prev_pi = None
-        while True:
-            await sch.sleep(1)
-            # Whether the Pi should be on according to sleepstate.
-            if self.enable_pi != prev_pi:
-                # Sleepstate changed, update countdown.
-                countdown = self.intermittent_report_interval
-                print('Sleepstate was {0}, is now {1}'.format(prev_pi, self.enable_pi))
-                prev_pi = self.enable_pi
-                continue
-            if not self.enable_pi:
-                # Pi should _not_ be on, according to sleepstate.
-                countdown -= 1
-                print(countdown)
-                if countdown <= 0:
-                    countdown = self.intermittent_report_interval
-                    # Enable the Pi, no matter what sleep state says.
-                    self.force_pi_on = True
-                    # Let it run for some time.
-                    await sch.sleep(self.intermittent_run_duration)
-                    # Set it to on or off depending on the sleepstate.
-                    self.force_pi_on = False
 
     def log(self, msg):
         now = time.localtime()
@@ -158,7 +109,7 @@ class Phlox:
 
     def set_sleepstate(self, state):
         self.sleepstate = state
-        self.enable_pi = not bool(state & 0x01)  # Turn Pi off if bit 1 is set
+        # Until there is a stable implementation, we do nothing with that value.
 
     def run(self):
         # Enable watchdog timer.
@@ -171,14 +122,35 @@ class Phlox:
 
 
 class Pi:
+    RUN_PERMANENT = const(0)
+    RUN_INTERMITTENT = const(1)
 
-    def __init__(self, status_sig, shutdown_sig, power_relay):
-        self.status_sig = status_sig
+    STATE_UNKNOWN = const(2)
+    STATE_PERM_ON = const(3)
+
+    def __init__(self, powered_sig, shutdown_sig, heartbeat_sig,
+                 power_relay, scheduler, log=print):
+        self.powered_sig = powered_sig
         self.shutdown_sig = shutdown_sig
         self.relay = power_relay
+        self.log = log
+
+        self.run_mode = self.RUN_PERMANENT
+        self.state = self.STATE_UNKNOWN
+        self.intermittent_sleep_len = 4 * 60 * 60  # 4 hours
+        self.intermittent_report_len = 10 * 60     # 10 minutes
+        self.intermittent_wants_power = False
+
+        scheduler(self._control)
+        scheduler(self._intermittent)
 
     def is_powered(self):
-        return bool(self.status_sig.value())
+        return bool(self.powered_sig.value())
+
+    def is_running(self):
+        # TODO: This should react to an incoming heartbeat.
+        # For now, simply return whether the Pi is powered.
+        return self.is_powered()
 
     def power_off(self):
         self.relay.unset()
@@ -190,6 +162,84 @@ class Pi:
         self.shutdown_sig.on()
         time.sleep_ms(350)
         self.shutdown_sig.off()
+
+    async def _control(self, sch):
+        while True:
+            await sch.sleep(1)  # Only tick once a second to save CPU cycles.
+            if self.run_mode == self.RUN_PERMANENT:
+                if self.state == self.STATE_PERM_ON:
+                    # Nothing to do, awesome.
+                    pass
+                else:
+                    # For now, the only thing we do is turn the relay on.
+                    # That won't help if the Pi has been shut down via software
+                    # or crashed or something, though.
+                    self.power_on()
+                    self.state = self.STATE_PERM_ON
+            elif self.run_mode == self.RUN_INTERMITTENT:
+                pass
+            else:
+                # Invalid run mode o_O do nothing.
+                pass
+
+    async def _intermittent_was_cancelled_while_sleeping(self, seconds, sch):
+        for _ in range(seconds):
+            if self.run_mode != self.RUN_INTERMITTENT:
+                self.log('Intermittent mode was cancelled while sleeping.')
+                return True
+            await sch.sleep(1)
+        return False
+
+    async def _intermittent(self, sch):
+        mode_before = target_running_state = None
+        while True:
+
+            # If the runmode changes, react to that.
+            if mode_before != self.run_mode:
+                mode_before = self.run_mode
+                if self.run_mode == self.RUN_INTERMITTENT:
+                    # Switching to intermittent mode. First, shut down.
+                    self.log('Intermittent mode enabled.')
+                    target_running_state = self.intermittent_wants_power = False
+                else:
+                    # Switching to permanent mode, disengage our logic.
+                    self.log('Intermittent mode disabled.')
+                    # Give other control logic time to ask for Pi power.
+                    await sch.sleep(2)
+                    self.intermittent_wants_power = False
+                    target_running_state = None
+
+            await sch.sleep(1)
+
+            # If intermittent mode is not active, do nothing.
+            if self.run_mode != self.RUN_INTERMITTENT:
+                continue
+
+            # If we're waiting for a running state that has not yet been
+            # reached, do nothing.
+            if target_running_state is not None \
+                    and self.is_running() != target_running_state:
+                continue
+
+            # After the Pi has booted up, keep it running for some time.
+            if target_running_state:
+                self.log('Giving the Pi time to report.')
+                if await _intermittent_was_cancelled_while_sleeping(
+                        self.intermittent_report_len, sch):
+                    continue
+                self.log('Report time expired.')
+                # Then, switch it off.
+                target_running_state = self.intermittent_wants_power = False
+
+            # After the Pi has shut down, wait for a rather long time.
+            else:
+                self.log('Letting the Pi sleep until report is scheduled.')
+                if await _intermittent_was_cancelled_while_sleeping(
+                        self.intermittent_sleep_len, sch):
+                    continue
+                self.log('Time for the next report.')
+                # Then, switch it on again.
+                target_running_state = self.intermittent_wants_power = True
 
 
 # TODO: Move to Perthensis.

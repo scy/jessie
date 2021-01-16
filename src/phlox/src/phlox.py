@@ -126,12 +126,13 @@ class Phlox:
 
     def log(self, msg):
         now = time.localtime()
-        msg = ('{0:04d}-{1:02d}-{2:02d} {3:02d}:{4:02d}:{5:02d}  {6}\n'.format(
+        msg = ('{0:04d}-{1:02d}-{2:02d} {3:02d}:{4:02d}:{5:02d}  {6}'.format(
             now[0], now[1], now[2], now[3], now[4], now[5], msg))
         if self.logfile:
             self.logfile.write(msg)
+            self.logfile.write('\n')
             self.logfile.flush()
-        print(msg[:-1])
+        print(msg)
 
     def print_log(self):
         with open('/sd/phlox.log', 'r') as log:

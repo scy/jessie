@@ -142,9 +142,6 @@ class Pi:
         self.intermittent_sleep_len = 4 * 60 * 60  # 4 hours
         self.intermittent_report_len = 10 * 60     # 10 minutes
         self.intermittent_wants_power = False
-        # TODO: Remove
-        self.intermittent_sleep_len = 60
-        self.intermittent_report_len = 60
 
         scheduler(self._control)
         scheduler(self._intermittent)

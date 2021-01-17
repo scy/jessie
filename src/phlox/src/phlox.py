@@ -145,12 +145,9 @@ class Pi:
         # TODO: Remove
         self.intermittent_sleep_len = 60
         self.intermittent_report_len = 60
-        self._fake_running_req = None
-        self._fake_running = True
 
         scheduler(self._control)
         scheduler(self._intermittent)
-        scheduler(self._fake_running_task)
 
     def is_powered(self):
         return bool(self.powered_sig.value())
@@ -158,46 +155,21 @@ class Pi:
     def is_running(self):
         # TODO: This should react to an incoming heartbeat.
         # For now, simply return whether the Pi is powered.
-        return (self._fake_running and self.is_powered())  # TODO: Remove
         return self.is_powered()
 
     def power_off(self):
-        self.log('Would cut power to the Pi.')
-
-        # TODO: Remove
-        self._fake_running_req = (0, False)
-        return
-
+        self.log('Cutting power to the Pi.')
         self.relay.unset()
 
     def power_on(self):
         self.log('Powering up the Pi.')
         self.relay.set()
 
-        # TODO: Remove
-        self._fake_running_req = (20, True)
-
     def shutdown(self):
-        self.log('Would send shutdown request to the Pi.')
-
-        # TODO: Remove
-        self._fake_running_req = (10, False)
-        return
-
+        self.log('Shutting down the Pi.')
         self.shutdown_sig.on()
         time.sleep_ms(350)
         self.shutdown_sig.off()
-
-    # TODO: Remove
-    async def _fake_running_task(self, sch):
-        while True:
-            await sch.sleep(1)
-            req = self._fake_running_req
-            if isinstance(req, tuple):
-                self.log('Will fake running {1} in {0}'.format(*req))
-                self._fake_running_req = None
-                await sch.sleep(req[0])
-                self._fake_running = req[1]
 
     async def _control(self, sch):
         '''Background task that controls power and shutdown of the Pi.'''

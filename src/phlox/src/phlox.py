@@ -108,7 +108,10 @@ class Phlox:
         self.mqtt.publish('jessie/' + packet.mqtt_name(), str(packet.value()), True)
 
     def set_sleepstate(self, state):
+        state = int(state)
         self.sleepstate = state
+        self.pi.run_mode = self.pi.RUN_INTERMITTENT if (state & 0x01) \
+            else self.pi.RUN_PERMANENT
         # Until there is a stable implementation, we do nothing with that value.
 
     def run(self):
@@ -136,13 +139,18 @@ class Pi:
         self.log = log
 
         self.run_mode = self.RUN_PERMANENT
-        self.state = self.STATE_UNKNOWN
         self.intermittent_sleep_len = 4 * 60 * 60  # 4 hours
         self.intermittent_report_len = 10 * 60     # 10 minutes
         self.intermittent_wants_power = False
+        # TODO: Remove
+        self.intermittent_sleep_len = 60
+        self.intermittent_report_len = 60
+        self._fake_running_req = None
+        self._fake_running = True
 
         scheduler(self._control)
         scheduler(self._intermittent)
+        scheduler(self._fake_running_task)
 
     def is_powered(self):
         return bool(self.powered_sig.value())
@@ -150,39 +158,100 @@ class Pi:
     def is_running(self):
         # TODO: This should react to an incoming heartbeat.
         # For now, simply return whether the Pi is powered.
+        return (self._fake_running and self.is_powered())  # TODO: Remove
         return self.is_powered()
 
     def power_off(self):
+        self.log('Would cut power to the Pi.')
+
+        # TODO: Remove
+        self._fake_running_req = (0, False)
+        return
+
         self.relay.unset()
 
     def power_on(self):
+        self.log('Powering up the Pi.')
         self.relay.set()
 
+        # TODO: Remove
+        self._fake_running_req = (20, True)
+
     def shutdown(self):
+        self.log('Would send shutdown request to the Pi.')
+
+        # TODO: Remove
+        self._fake_running_req = (10, False)
+        return
+
         self.shutdown_sig.on()
         time.sleep_ms(350)
         self.shutdown_sig.off()
 
+    # TODO: Remove
+    async def _fake_running_task(self, sch):
+        while True:
+            await sch.sleep(1)
+            req = self._fake_running_req
+            if isinstance(req, tuple):
+                self.log('Will fake running {1} in {0}'.format(*req))
+                self._fake_running_req = None
+                await sch.sleep(req[0])
+                self._fake_running = req[1]
+
     async def _control(self, sch):
+        '''Background task that controls power and shutdown of the Pi.'''
+        last_state = None
         while True:
             await sch.sleep(1)  # Only tick once a second to save CPU cycles.
-            if self.run_mode == self.RUN_PERMANENT:
-                if self.state == self.STATE_PERM_ON:
-                    # Nothing to do, awesome.
-                    pass
-                else:
-                    # For now, the only thing we do is turn the relay on.
-                    # That won't help if the Pi has been shut down via software
-                    # or crashed or something, though.
-                    self.power_on()
-                    self.state = self.STATE_PERM_ON
-            elif self.run_mode == self.RUN_INTERMITTENT:
-                pass
-            else:
-                # Invalid run mode o_O do nothing.
-                pass
 
-    async def _intermittent_was_cancelled_while_sleeping(self, seconds, sch):
+            # Determine whether the Pi should be powered or not.
+            should_be_powered = \
+                (self.run_mode == self.RUN_PERMANENT) \
+                or self.intermittent_wants_power
+
+            # If there's no change, do nothing.
+            if should_be_powered is last_state:
+                continue
+
+            if should_be_powered:
+                self.power_on()
+                # Wait until it actually did boot up (but with a timeout).
+                for _ in range(90):
+                    await sch.sleep(1)
+                    if self.is_running():
+                        break
+                # Wait 10 more seconds, just to be sure.
+                for _ in range(10):
+                    await sch.sleep(1)
+            else:
+                # It's on purpose that the shutdown procedure doesn't check for
+                # mode changes or whether power has been requested again while
+                # it's running: The shutdown has to complete cleanly before
+                # booting the Pi up again.
+                self.log('Starting shutdown procedure.')
+                # Send shutdown signal.
+                self.shutdown()
+                # Wait until it actually did shut down (but with a timeout).
+                for _ in range(30):
+                    await sch.sleep(1)
+                    if not self.is_running():
+                        break
+                # Wait 5 more seconds for lingering SD card writes etc.
+                for _ in range(5):
+                    await sch.sleep(1)
+                # Kill power.
+                self.power_off()
+
+            # Remember the state to check for a difference next iteration.
+            last_state = should_be_powered
+
+    async def _intermittent_was_cancelled_while_sleeping_for(
+            self, seconds, sch):
+        '''Sleep for given time, but abort if no longer in intermittent mode.
+
+        Return True if cancelled by a mode change, False when having slept for
+        the whole time specified.'''
         for _ in range(seconds):
             if self.run_mode != self.RUN_INTERMITTENT:
                 self.log('Intermittent mode was cancelled while sleeping.')
@@ -191,13 +260,15 @@ class Pi:
         return False
 
     async def _intermittent(self, sch):
-        mode_before = target_running_state = None
+        '''Background task that requests the Pi to turn on/off in intervals.'''
+        mode = target_running_state = None
         while True:
+            await sch.sleep(1)
 
             # If the runmode changes, react to that.
-            if mode_before != self.run_mode:
-                mode_before = self.run_mode
-                if self.run_mode == self.RUN_INTERMITTENT:
+            if mode != self.run_mode:
+                mode = self.run_mode
+                if mode == self.RUN_INTERMITTENT:
                     # Switching to intermittent mode. First, shut down.
                     self.log('Intermittent mode enabled.')
                     target_running_state = self.intermittent_wants_power = False
@@ -209,10 +280,8 @@ class Pi:
                     self.intermittent_wants_power = False
                     target_running_state = None
 
-            await sch.sleep(1)
-
             # If intermittent mode is not active, do nothing.
-            if self.run_mode != self.RUN_INTERMITTENT:
+            if mode != self.RUN_INTERMITTENT:
                 continue
 
             # If we're waiting for a running state that has not yet been
@@ -224,7 +293,7 @@ class Pi:
             # After the Pi has booted up, keep it running for some time.
             if target_running_state:
                 self.log('Giving the Pi time to report.')
-                if await _intermittent_was_cancelled_while_sleeping(
+                if await self._intermittent_was_cancelled_while_sleeping_for(
                         self.intermittent_report_len, sch):
                     continue
                 self.log('Report time expired.')
@@ -234,7 +303,7 @@ class Pi:
             # After the Pi has shut down, wait for a rather long time.
             else:
                 self.log('Letting the Pi sleep until report is scheduled.')
-                if await _intermittent_was_cancelled_while_sleeping(
+                if await self._intermittent_was_cancelled_while_sleeping_for(
                         self.intermittent_sleep_len, sch):
                     continue
                 self.log('Time for the next report.')

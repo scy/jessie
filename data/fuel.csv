@@ -66,6 +66,6 @@ date/time,liters,price,odometer,trip,avg cons,avg spd,duration,location,comment
 2020-12-24 17:57,18.03,EUR 20.00,29300,184.8,10.9,60,3:02,Aral Amperestr. Bensheim,
 2021-01-09 01:23,36.32,EUR 45.00,29390,89.6,13.5,24,3:39,Esso Frankfurt,
 2021-01-15 21:15,41.02,EUR 50.00,29518,127.7,10.2,58,2:11,Esso Stresemannallee,
-2021-01-29 14:11,,,29829,311.2,11.2,62,5:00,Edeka Lampertheim,
+2021-01-29 14:11,33.64,EUR 40.00,29829,311.2,11.2,62,5:00,Edeka Lampertheim,
 2021-02-06 20:32,40.36,EUR 50.00,30221,392.2,10.0,64,6:07,Aral Bensheim,trip/odo data noted down a few km later
 2021-02-14 18:01,36.34,EUR 45.03,30363,141.6,10.6,56,2:29,Esso Ludwig-Landmann-Str.,

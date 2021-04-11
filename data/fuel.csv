@@ -70,8 +70,8 @@ date/time,liters,price,odometer,trip,avg cons,avg spd,duration,location,comment
 2021-02-06 20:32,40.36,EUR 50.00,30221,392.2,10.0,64,6:07,Aral Bensheim,trip/odo data noted down a few km later
 2021-02-14 18:01,36.34,EUR 45.03,30363,141.6,10.6,56,2:29,Esso Ludwig-Landmann-Str.,
 2021-02-19 15:14,39.72,EUR 50.01,30515,152.2,11.4,52,2:53,HEM Gründau-Lieblos,
-2021-02-24 18:52,23.46,EUR 30.00,,,,,,Aral Bensheim,
-2021-03-01 20:48,39.40,EUR 50.00,,,,,,Jet Weiskircher Str. Rodgau,
-2021-03-14 21:48,14.83,EUR 20.00,,,,,,Aral an der B448 Rodgau,
-2021-03-19 18:15,38.80,EUR 50.01,,,,,,Thelen Schwabenheim,
-2021-03-22 14:56,31.28,EUR 40.01,,,,,,SB Mannheimer Str. Lampertheim,
+2021-02-24 18:52,23.46,EUR 30.00,30747,232.0,10.8,53,4:22,Aral Bensheim,
+2021-03-01 20:48,39.40,EUR 50.00,31000,253.5,10.6,55,4:35,Jet Weiskircher Str. Rodgau,
+2021-03-14 21:48,14.83,EUR 20.00,31453,452.5,9.5,64,7:00,Aral an der B448 Rodgau,
+2021-03-19 18:15,38.80,EUR 50.01,31604,150.8,10.6,61,2:27,bft Schwabenheim,
+2021-03-22 14:56,31.28,EUR 40.01,31772,167.9,10.1,68,2:26,SB Mannheimer Str. Lampertheim,

@@ -79,5 +79,5 @@ date/time,liters,price,odometer,trip,avg cons,avg spd,duration,location,comment
 2021-04-16 13:31,31.52,EUR 40.00,32209,261.4,10.7,40,6:22,Jet Rodgau,
 2021-04-20 17:52,31.28,EUR 40.01,32368,159.4,10.2,52,3:02,Classic Bürstadt,
 2021-04-24 15:16,27.99,EUR 40.00,32710,342,9.3,62,5:27,Total Mainzer Str. Kaiserslautern,
-2021-05-04 18:20,,,33009,298.4,10.6,63,4:42,Shell Bad Schönborn,
-2021-05-09 16:23,,,33384,374,9.6,65,5:44,HEM Weinheim,
+2021-05-04 18:24,34.48,EUR 44.44,33009,298.4,10.6,63,4:42,Shell Kronau,
+2021-05-09 16:23,40.00,EUR 51.16,33384,374,9.6,65,5:44,HEM Weinheim,
